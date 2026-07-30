@@ -1,0 +1,2 @@
+class SceneService:
+    pass
