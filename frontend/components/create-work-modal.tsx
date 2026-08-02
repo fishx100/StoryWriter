@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-import type { CreateWorkInput } from '@/types/work';
+import type { CreateWorkInput } from "@/types/work";
 
 type CreateWorkModalProps = {
   open: boolean;
@@ -10,7 +10,7 @@ type CreateWorkModalProps = {
   error: string | null;
   onClose: () => void;
   onSubmit: (work: CreateWorkInput) => Promise<void>;
-  mode?: 'create' | 'edit';
+  mode?: "create" | "edit";
   title?: string;
   subtitle?: string;
   submitLabel?: string;
@@ -18,10 +18,10 @@ type CreateWorkModalProps = {
 };
 
 const initialFormState: CreateWorkInput = {
-  title: '',
-  premise: '',
-  genre: '',
-  status: 'todo',
+  title: "",
+  premise: "",
+  genre: "",
+  status: "todo",
 };
 
 export function CreateWorkModal({
@@ -30,7 +30,7 @@ export function CreateWorkModal({
   error,
   onClose,
   onSubmit,
-  mode = 'create',
+  mode = "create",
   title,
   subtitle,
   submitLabel,
@@ -51,18 +51,27 @@ export function CreateWorkModal({
     return null;
   }
 
-  const heading = title ?? (mode === 'edit' ? 'Edit Work' : 'Create Work');
-  const description = subtitle ?? (mode === 'edit' ? 'Update the core details for this project.' : 'Start a new story project');
-  const actionLabel = submitLabel ?? (mode === 'edit' ? 'Save Changes' : 'Create Work');
+  const heading = title ?? (mode === "edit" ? "Edit Work" : "Create Work");
+  const description =
+    subtitle ??
+    (mode === "edit"
+      ? "Update the core details for this project."
+      : "Start a new story project");
+  const actionLabel =
+    submitLabel ?? (mode === "edit" ? "Save Changes" : "Create Work");
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-sm">
       <div className="w-full max-w-lg rounded-3xl border border-slate-200/10 bg-slate-950 p-6 text-slate-100 shadow-2xl shadow-black/40">
         <div className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-amber-300">{mode === 'edit' ? 'Edit Work' : 'Create Work'}</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-amber-300">
+              {mode === "edit" ? "Edit Work" : "Create Work"}
+            </p>
             <h2 className="mt-2 text-2xl font-semibold">{heading}</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-300">{description}</p>
+            <p className="mt-3 text-sm leading-6 text-slate-300">
+              {description}
+            </p>
           </div>
           <button
             type="button"
@@ -75,7 +84,7 @@ export function CreateWorkModal({
 
         <form
           className="space-y-4"
-          onSubmit={async event => {
+          onSubmit={async (event) => {
             event.preventDefault();
             await onSubmit(form);
           }}
@@ -84,7 +93,12 @@ export function CreateWorkModal({
             <span className="text-sm text-slate-300">Title</span>
             <input
               value={form.title}
-              onChange={event => setForm(current => ({ ...current, title: event.target.value }))}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  title: event.target.value,
+                }))
+              }
               className="w-full rounded-2xl border border-slate-200/10 bg-slate-900 px-4 py-3 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-amber-300/50"
               placeholder="The Sunken Crown"
             />
@@ -94,7 +108,12 @@ export function CreateWorkModal({
             <span className="text-sm text-slate-300">Premise</span>
             <textarea
               value={form.premise}
-              onChange={event => setForm(current => ({ ...current, premise: event.target.value }))}
+              onChange={(event) =>
+                setForm((current) => ({
+                  ...current,
+                  premise: event.target.value,
+                }))
+              }
               className="min-h-28 w-full rounded-2xl border border-slate-200/10 bg-slate-900 px-4 py-3 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-amber-300/50"
               placeholder="A disgraced heir must reclaim a drowned kingdom."
             />
@@ -105,7 +124,12 @@ export function CreateWorkModal({
               <span className="text-sm text-slate-300">Genre</span>
               <input
                 value={form.genre}
-                onChange={event => setForm(current => ({ ...current, genre: event.target.value }))}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    genre: event.target.value,
+                  }))
+                }
                 className="w-full rounded-2xl border border-slate-200/10 bg-slate-900 px-4 py-3 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-amber-300/50"
                 placeholder="Fantasy"
               />
@@ -115,7 +139,12 @@ export function CreateWorkModal({
               <span className="text-sm text-slate-300">Status</span>
               <select
                 value={form.status}
-                onChange={event => setForm(current => ({ ...current, status: event.target.value }))}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    status: event.target.value,
+                  }))
+                }
                 className="w-full rounded-2xl border border-slate-200/10 bg-slate-900 px-4 py-3 text-slate-100 outline-none transition focus:border-amber-300/50"
               >
                 <option value="todo">Todo</option>
@@ -140,7 +169,11 @@ export function CreateWorkModal({
               disabled={loading}
               className="rounded-full bg-amber-300 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? (mode === 'edit' ? 'Saving...' : 'Creating...') : actionLabel}
+              {loading
+                ? mode === "edit"
+                  ? "Saving..."
+                  : "Creating..."
+                : actionLabel}
             </button>
           </div>
         </form>

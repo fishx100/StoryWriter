@@ -1,9 +1,9 @@
-import type { Metadata } from 'next';
-import './globals.css';
+import type { Metadata } from "next";
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: 'StoryWriter',
-  description: 'A browser-based story writing workspace.',
+  title: "StoryWriter",
+  description: "A browser-based story writing workspace.",
 };
 
 export default function RootLayout({

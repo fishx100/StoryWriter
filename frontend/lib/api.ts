@@ -1,10 +1,14 @@
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:8000';
+export const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
-export async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
+export async function fetchJson<T>(
+  path: string,
+  init?: RequestInit,
+): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...(init?.headers ?? {}),
     },
   });
@@ -17,8 +21,8 @@ export async function fetchJson<T>(path: string, init?: RequestInit): Promise<T>
     return undefined as T;
   }
 
-  const contentLength = response.headers.get('content-length');
-  if (contentLength === '0') {
+  const contentLength = response.headers.get("content-length");
+  if (contentLength === "0") {
     return undefined as T;
   }
 

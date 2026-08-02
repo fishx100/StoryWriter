@@ -1,12 +1,12 @@
 "use client";
 
-import Link from 'next/link';
-import { use, useEffect, useState } from 'react';
-import { ConfirmDeleteModal } from '@/components/confirm-delete-modal';
-import { fetchJson } from '@/lib/api';
-import type { Scene, CreateSceneInput } from '@/types/scene';
-import { CreateSceneModal } from '@/components/create-scene-modal';
-import { SceneList } from '@/components/scene-list';
+import Link from "next/link";
+import { use, useEffect, useState } from "react";
+import { ConfirmDeleteModal } from "@/components/confirm-delete-modal";
+import { fetchJson } from "@/lib/api";
+import type { Scene, CreateSceneInput } from "@/types/scene";
+import { CreateSceneModal } from "@/components/create-scene-modal";
+import { SceneList } from "@/components/scene-list";
 
 type ScenesPageProps = {
   params: Promise<{ workId: string }>;
@@ -29,21 +29,32 @@ export default function ScenesPage({ params }: ScenesPageProps) {
         const data = await fetchJson<Scene[]>(`/api/works/${workId}/scenes`);
         if (active) setScenes(data);
       } catch (e) {
-        if (active) setError('Unable to load scenes.');
-      } finally { if (active) setLoading(false); }
+        if (active) setError("Unable to load scenes.");
+      } finally {
+        if (active) setLoading(false);
+      }
     }
     void load();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [workId]);
 
   async function handleCreate(input: CreateSceneInput) {
-    setSaving(true); setError(null);
+    setSaving(true);
+    setError(null);
     try {
-      const s = await fetchJson<Scene>(`/api/works/${workId}/scenes`, { method: 'POST', body: JSON.stringify(input) });
-      setScenes(prev => [...prev, s]);
+      const s = await fetchJson<Scene>(`/api/works/${workId}/scenes`, {
+        method: "POST",
+        body: JSON.stringify(input),
+      });
+      setScenes((prev) => [...prev, s]);
       setCreateOpen(false);
-    } catch (e) { setError('Could not create scene.'); }
-    finally { setSaving(false); }
+    } catch (e) {
+      setError("Could not create scene.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function handleDeleteScene() {
@@ -53,21 +64,33 @@ export default function ScenesPage({ params }: ScenesPageProps) {
 
     setDeleting(true);
     try {
-      await fetchJson<void>(`/api/scenes/${deleteTarget.id}`, { method: 'DELETE' });
-      setScenes(prev => prev.filter(s => s.id !== deleteTarget.id));
+      await fetchJson<void>(`/api/scenes/${deleteTarget.id}`, {
+        method: "DELETE",
+      });
+      setScenes((prev) => prev.filter((s) => s.id !== deleteTarget.id));
       setDeleteTarget(null);
-    } catch { setError('Failed to delete scene.'); }
-    finally { setDeleting(false); }
+    } catch {
+      setError("Failed to delete scene.");
+    } finally {
+      setDeleting(false);
+    }
   }
 
   async function handleReorder(order: string[]) {
     try {
-      await fetchJson<void>(`/api/works/${workId}/scenes/reorder`, { method: 'POST', body: JSON.stringify({ order }) });
-      setScenes(current => {
-        const map = new Map(current.map(scene => [scene.id, scene]));
-        return order.map(id => map.get(id)).filter((scene): scene is Scene => scene !== undefined);
+      await fetchJson<void>(`/api/works/${workId}/scenes/reorder`, {
+        method: "POST",
+        body: JSON.stringify({ order }),
       });
-    } catch { setError('Failed to reorder scenes.'); }
+      setScenes((current) => {
+        const map = new Map(current.map((scene) => [scene.id, scene]));
+        return order
+          .map((id) => map.get(id))
+          .filter((scene): scene is Scene => scene !== undefined);
+      });
+    } catch {
+      setError("Failed to reorder scenes.");
+    }
   }
 
   return (
@@ -93,18 +116,37 @@ export default function ScenesPage({ params }: ScenesPageProps) {
             <h2 className="text-2xl font-semibold">Scenes</h2>
           </div>
 
-          {loading ? <p>Loading...</p> : <SceneList workId={workId} scenes={scenes} onRequestDelete={setDeleteTarget} onReorder={handleReorder} />}
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            <SceneList
+              workId={workId}
+              scenes={scenes}
+              onRequestDelete={setDeleteTarget}
+              onReorder={handleReorder}
+            />
+          )}
 
           {error ? <p className="mt-4 text-sm text-rose-300">{error}</p> : null}
         </div>
       </div>
 
-      <CreateSceneModal open={createOpen} loading={saving} error={error} onClose={() => setCreateOpen(false)} onSubmit={handleCreate} />
+      <CreateSceneModal
+        open={createOpen}
+        loading={saving}
+        error={error}
+        onClose={() => setCreateOpen(false)}
+        onSubmit={handleCreate}
+      />
 
       <ConfirmDeleteModal
         open={deleteTarget !== null}
-        title={deleteTarget ? `Delete ${deleteTarget.title}?` : 'Delete scene?'}
-        message={deleteTarget ? 'This will permanently delete the scene. This action cannot be undone.' : 'This action cannot be undone.'}
+        title={deleteTarget ? `Delete ${deleteTarget.title}?` : "Delete scene?"}
+        message={
+          deleteTarget
+            ? "This will permanently delete the scene. This action cannot be undone."
+            : "This action cannot be undone."
+        }
         loading={deleting}
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDeleteScene}

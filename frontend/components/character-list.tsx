@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Character } from "@/types/character";
 import Link from "next/dist/client/link";
@@ -12,15 +12,26 @@ type Props = {
   onSelectCharacter?: (character: Character) => void;
 };
 
-export function CharacterList({ workId, characters, onRequestDelete, onReorder, onSelectCharacter }: Props) {
-  const [ordering, setOrdering] = useState<string[]>(characters.map(character => character.id));
+export function CharacterList({
+  workId,
+  characters,
+  onRequestDelete,
+  onReorder,
+  onSelectCharacter,
+}: Props) {
+  const [ordering, setOrdering] = useState<string[]>(
+    characters.map((character) => character.id),
+  );
   const [draggedId, setDraggedId] = useState<string | null>(null);
 
   useEffect(() => {
-    setOrdering(characters.map(character => character.id));
+    setOrdering(characters.map((character) => character.id));
   }, [characters]);
 
-  const charactersById = useMemo(() => new Map(characters.map(character => [character.id, character])), [characters]);
+  const charactersById = useMemo(
+    () => new Map(characters.map((character) => [character.id, character])),
+    [characters],
+  );
 
   async function commitOrder(nextOrder: string[]) {
     setOrdering(nextOrder);
@@ -73,15 +84,15 @@ export function CharacterList({ workId, characters, onRequestDelete, onReorder, 
             tabIndex={0}
             draggable
             onDragStart={() => setDraggedId(character.id)}
-            onDragOver={event => event.preventDefault()}
+            onDragOver={(event) => event.preventDefault()}
             onDrop={() => moveDraggedItem(character.id)}
-            onKeyDown={event => {
-              if (event.key === 'ArrowUp') {
+            onKeyDown={(event) => {
+              if (event.key === "ArrowUp") {
                 event.preventDefault();
                 move(idx, -1);
               }
 
-              if (event.key === 'ArrowDown') {
+              if (event.key === "ArrowDown") {
                 event.preventDefault();
                 move(idx, 1);
               }
@@ -96,32 +107,57 @@ export function CharacterList({ workId, characters, onRequestDelete, onReorder, 
                 className="min-w-0 flex-1 rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-amber-300"
               >
                 <div>
-                  <h4 className="text-lg font-semibold text-white">{character.name}</h4>
-                  <p className="text-sm text-slate-400">{character.description}</p>
+                  <h4 className="text-lg font-semibold text-white">
+                    {character.name}
+                  </h4>
+                  <p className="text-sm text-slate-400">
+                    {character.description}
+                  </p>
                 </div>
               </button>
             ) : (
-              <Link href={`/works/${workId}/characters/${character.id}`} className="min-w-0 flex-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-300">
+              <Link
+                href={`/works/${workId}/characters/${character.id}`}
+                className="min-w-0 flex-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-300"
+              >
                 <div>
-                  <h4 className="text-lg font-semibold text-white">{character.name}</h4>
-                  <p className="text-sm text-slate-400">{character.description}</p>
+                  <h4 className="text-lg font-semibold text-white">
+                    {character.name}
+                  </h4>
+                  <p className="text-sm text-slate-400">
+                    {character.description}
+                  </p>
                 </div>
               </Link>
             )}
             <div className="flex flex-col items-end gap-2">
               <div className="flex gap-2">
                 {idx > 0 ? (
-                  <button type="button" onClick={() => move(idx, -1)} className="rounded bg-slate-700 px-2 py-1" aria-label="Move character up">
+                  <button
+                    type="button"
+                    onClick={() => move(idx, -1)}
+                    className="rounded bg-slate-700 px-2 py-1"
+                    aria-label="Move character up"
+                  >
                     ↑
                   </button>
                 ) : null}
                 {idx < ordering.length - 1 ? (
-                  <button type="button" onClick={() => move(idx, 1)} className="rounded bg-slate-700 px-2 py-1" aria-label="Move character down">
+                  <button
+                    type="button"
+                    onClick={() => move(idx, 1)}
+                    className="rounded bg-slate-700 px-2 py-1"
+                    aria-label="Move character down"
+                  >
                     ↓
                   </button>
                 ) : null}
               </div>
-              <button type="button" onClick={() => onRequestDelete(character)} className="text-sm text-rose-400">
+              <button
+                type="button"
+                onClick={() => onRequestDelete(character)}
+                className="text-sm text-rose-400"
+              >
                 Delete
               </button>
             </div>

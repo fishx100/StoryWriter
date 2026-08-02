@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import type { Scene } from '@/types/scene';
-import { useEffect, useMemo, useState } from 'react';
+import Link from "next/link";
+import type { Scene } from "@/types/scene";
+import { useEffect, useMemo, useState } from "react";
 
 type Props = {
   workId: string;
@@ -12,47 +12,58 @@ type Props = {
   onSelectScene?: (scene: Scene) => void;
 };
 
-function normalizeStatus(status: string): 'todo' | 'in_progress' | 'done' {
-  if (status === 'in_progress' || status === 'planning') {
-    return 'in_progress';
+function normalizeStatus(status: string): "todo" | "in_progress" | "done" {
+  if (status === "in_progress" || status === "planning") {
+    return "in_progress";
   }
-  if (status === 'done' || status === 'revising') {
-    return 'done';
+  if (status === "done" || status === "revising") {
+    return "done";
   }
-  return 'todo';
+  return "todo";
 }
 
 function statusBadgeClass(status: string): string {
   const normalized = normalizeStatus(status);
-  if (normalized === 'done') {
-    return 'border-emerald-300/40 bg-emerald-400/10 text-emerald-200';
+  if (normalized === "done") {
+    return "border-emerald-300/40 bg-emerald-400/10 text-emerald-200";
   }
-  if (normalized === 'in_progress') {
-    return 'border-amber-300/40 bg-amber-400/10 text-amber-100';
+  if (normalized === "in_progress") {
+    return "border-amber-300/40 bg-amber-400/10 text-amber-100";
   }
-  return 'border-sky-300/40 bg-sky-400/10 text-sky-100';
+  return "border-sky-300/40 bg-sky-400/10 text-sky-100";
 }
 
 function statusLabel(status: string): string {
   const normalized = normalizeStatus(status);
-  if (normalized === 'in_progress') {
-    return 'In progress';
+  if (normalized === "in_progress") {
+    return "In progress";
   }
-  if (normalized === 'done') {
-    return 'Done';
+  if (normalized === "done") {
+    return "Done";
   }
-  return 'Todo';
+  return "Todo";
 }
 
-export function SceneList({ workId, scenes, onRequestDelete, onReorder, onSelectScene }: Props) {
-  const [ordering, setOrdering] = useState<string[]>(scenes.map(scene => scene.id));
+export function SceneList({
+  workId,
+  scenes,
+  onRequestDelete,
+  onReorder,
+  onSelectScene,
+}: Props) {
+  const [ordering, setOrdering] = useState<string[]>(
+    scenes.map((scene) => scene.id),
+  );
   const [draggedId, setDraggedId] = useState<string | null>(null);
 
   useEffect(() => {
-    setOrdering(scenes.map(scene => scene.id));
+    setOrdering(scenes.map((scene) => scene.id));
   }, [scenes]);
 
-  const scenesById = useMemo(() => new Map(scenes.map(scene => [scene.id, scene])), [scenes]);
+  const scenesById = useMemo(
+    () => new Map(scenes.map((scene) => [scene.id, scene])),
+    [scenes],
+  );
 
   async function commitOrder(nextOrder: string[]) {
     setOrdering(nextOrder);
@@ -105,15 +116,15 @@ export function SceneList({ workId, scenes, onRequestDelete, onReorder, onSelect
             tabIndex={0}
             draggable
             onDragStart={() => setDraggedId(scene.id)}
-            onDragOver={event => event.preventDefault()}
+            onDragOver={(event) => event.preventDefault()}
             onDrop={() => moveDraggedItem(scene.id)}
-            onKeyDown={event => {
-              if (event.key === 'ArrowUp') {
+            onKeyDown={(event) => {
+              if (event.key === "ArrowUp") {
                 event.preventDefault();
                 move(idx, -1);
               }
 
-              if (event.key === 'ArrowDown') {
+              if (event.key === "ArrowDown") {
                 event.preventDefault();
                 move(idx, 1);
               }
@@ -128,16 +139,31 @@ export function SceneList({ workId, scenes, onRequestDelete, onReorder, onSelect
                 className="min-w-0 flex-1 rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-amber-300"
               >
                 <div>
-                  <div className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${statusBadgeClass(scene.status)}`}>{statusLabel(scene.status)}</div>
-                  <h4 className="text-lg font-semibold text-white">{scene.title}</h4>
+                  <div
+                    className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${statusBadgeClass(scene.status)}`}
+                  >
+                    {statusLabel(scene.status)}
+                  </div>
+                  <h4 className="text-lg font-semibold text-white">
+                    {scene.title}
+                  </h4>
                   <p className="text-sm text-slate-400">{scene.summary}</p>
                 </div>
               </button>
             ) : (
-              <Link href={`/works/${workId}/scenes/${scene.id}`} className="min-w-0 flex-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-300">
+              <Link
+                href={`/works/${workId}/scenes/${scene.id}`}
+                className="min-w-0 flex-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-300"
+              >
                 <div>
-                  <div className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${statusBadgeClass(scene.status)}`}>{statusLabel(scene.status)}</div>
-                  <h4 className="text-lg font-semibold text-white">{scene.title}</h4>
+                  <div
+                    className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${statusBadgeClass(scene.status)}`}
+                  >
+                    {statusLabel(scene.status)}
+                  </div>
+                  <h4 className="text-lg font-semibold text-white">
+                    {scene.title}
+                  </h4>
                   <p className="text-sm text-slate-400">{scene.summary}</p>
                 </div>
               </Link>
@@ -145,17 +171,31 @@ export function SceneList({ workId, scenes, onRequestDelete, onReorder, onSelect
             <div className="flex flex-col items-end gap-2">
               <div className="flex gap-2">
                 {idx > 0 ? (
-                  <button type="button" onClick={() => move(idx, -1)} className="rounded bg-slate-700 px-2 py-1" aria-label="Move scene up">
+                  <button
+                    type="button"
+                    onClick={() => move(idx, -1)}
+                    className="rounded bg-slate-700 px-2 py-1"
+                    aria-label="Move scene up"
+                  >
                     ↑
                   </button>
                 ) : null}
                 {idx < ordering.length - 1 ? (
-                  <button type="button" onClick={() => move(idx, 1)} className="rounded bg-slate-700 px-2 py-1" aria-label="Move scene down">
+                  <button
+                    type="button"
+                    onClick={() => move(idx, 1)}
+                    className="rounded bg-slate-700 px-2 py-1"
+                    aria-label="Move scene down"
+                  >
                     ↓
                   </button>
                 ) : null}
               </div>
-              <button type="button" onClick={() => onRequestDelete(scene)} className="text-sm text-rose-400">
+              <button
+                type="button"
+                onClick={() => onRequestDelete(scene)}
+                className="text-sm text-rose-400"
+              >
                 Delete
               </button>
             </div>
