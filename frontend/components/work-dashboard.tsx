@@ -7,6 +7,7 @@ import { CreateWorkModal } from '@/components/create-work-modal';
 import { WorkList } from '@/components/work-list';
 import { fetchJson } from '@/lib/api';
 import type { CreateWorkInput, Work } from '@/types/work';
+import { FieldContainer } from './layout/field-container';
 
 type WorkDashboardProps = {
   mode: 'dashboard' | 'works';
@@ -112,18 +113,9 @@ export function WorkDashboard({ mode }: WorkDashboardProps) {
           </div>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            <div className="sw-field-container">
-              <p className="sw-field-title">Works</p>
-              <p className="sw-field-value">{totalWorks}</p>
-            </div>
-            <div className="sw-field-container">
-              <p className="sw-field-title">Mode</p>
-              <p className="sw-field-value">{mode}</p>
-            </div>
-            <div className="sw-field-container">
-              <p className="sw-field-title">Auth</p>
-              <p className="sw-field-value">Mock session</p>
-            </div>
+            <FieldContainer fieldName="Works" fieldValue={totalWorks.toString()} />
+            <FieldContainer fieldName="Mode" fieldValue={mode} />
+            <FieldContainer fieldName="Auth" fieldValue="Mock session" />
           </div>
         </header>
 

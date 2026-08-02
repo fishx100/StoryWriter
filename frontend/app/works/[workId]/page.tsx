@@ -12,6 +12,7 @@ import type { Character } from '@/types/character';
 import type { Work } from '@/types/work';
 import type { Scene } from '@/types/scene';
 import type { UpdateWorkInput } from '@/types/work';
+import { FieldContainer } from '@/components/layout/field-container';
 
 type WorkPageProps = {
   params: Promise<{ workId: string }>;
@@ -347,10 +348,7 @@ export default function WorkPage({ params }: WorkPageProps) {
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="sw-field-container">
-                  <p className="sw-field-title">Genre</p>
-                  <p className="mt-2 text-lg font-medium text-slate-100">{work.genre || 'Unspecified'}</p>
-                </div>
+                <FieldContainer fieldName="Genre" fieldValue={work.genre || 'Unspecified'} />
 
                 <div className="sw-field-container">
                   <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Status</p>
