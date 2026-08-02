@@ -89,16 +89,16 @@ export function WorkDashboard({ mode }: WorkDashboardProps) {
   }
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.08),_transparent_30%),linear-gradient(180deg,#020617_0%,#020617_45%,#07111f_100%)] px-4 py-6 text-slate-100 sm:px-6 lg:px-8">
+    <main className="sw-page-shell">
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
-        <header className="rounded-[2rem] border border-slate-200/10 bg-slate-950/80 p-5 shadow-2xl shadow-black/20 backdrop-blur sm:p-6">
+        <header className="sw-section-panel">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-amber-300">StoryWriter</p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-                {mode === 'dashboard' ? 'Dashboard' : 'Work List'}
+              <p className="sw-section-heading">StoryWriter</p>
+              <h1 className="sw-heading-big">
+                Dashboard
               </h1>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
+              <p className="sw-text-plain-small">
                 Mock authenticated workspace for planning and drafting stories.
               </p>
             </div>
@@ -112,31 +112,31 @@ export function WorkDashboard({ mode }: WorkDashboardProps) {
           </div>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            <div className="rounded-3xl border border-slate-200/10 bg-slate-900/70 p-4">
-              <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Works</p>
-              <p className="mt-2 text-3xl font-semibold">{totalWorks}</p>
+            <div className="sw-field-container">
+              <p className="sw-field-title">Works</p>
+              <p className="sw-field-value">{totalWorks}</p>
             </div>
-            <div className="rounded-3xl border border-slate-200/10 bg-slate-900/70 p-4">
-              <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Mode</p>
-              <p className="mt-2 text-lg font-medium capitalize text-slate-100">{mode}</p>
+            <div className="sw-field-container">
+              <p className="sw-field-title">Mode</p>
+              <p className="sw-field-value">{mode}</p>
             </div>
-            <div className="rounded-3xl border border-slate-200/10 bg-slate-900/70 p-4">
-              <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Auth</p>
-              <p className="mt-2 text-lg font-medium text-slate-100">Mock session</p>
+            <div className="sw-field-container">
+              <p className="sw-field-title">Auth</p>
+              <p className="sw-field-value">Mock session</p>
             </div>
           </div>
         </header>
 
-        <section className="rounded-[2rem] border border-slate-200/10 bg-slate-950/80 p-5 shadow-2xl shadow-black/20 sm:p-6">
+        <section className="sw-section-panel">
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs uppercase tracking-[0.35em] text-amber-300">Your Works</p>
+              <p className="sw-section-heading">Your Works</p>
               <h2 className="mt-2 text-2xl font-semibold">Browse and manage story projects</h2>
             </div>
             <button
               type="button"
               onClick={() => setCreateOpen(true)}
-              className="rounded-full bg-amber-300 border border-slate-200/10 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-amber-200"
+              className="sw-important-button"
             >
               Create Work
             </button>

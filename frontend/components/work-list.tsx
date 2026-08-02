@@ -57,7 +57,7 @@ export function WorkList({ works, onRequestDelete }: WorkListProps) {
         >
           <div className="flex items-start justify-between gap-4">
             <Link href={`/works/${work.id}`} className="min-w-0 flex-1 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-300">
-              <p className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${statusBadgeClass(work.status)}`}>{statusLabel(work.status)}</p>
+              <p className={`sw-tag-label ${statusBadgeClass(work.status)}`}>{statusLabel(work.status)}</p>
               <h3 className="mt-2 text-xl font-semibold text-slate-100 transition group-hover:text-amber-100">{work.title}</h3>
               <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-300">
                 {work.premise || 'No premise yet.'}
@@ -65,11 +65,11 @@ export function WorkList({ works, onRequestDelete }: WorkListProps) {
             </Link>
 
             <div className="flex flex-col items-end gap-3">
-              <span className="rounded-full border border-slate-200/10 px-3 py-1 text-xs text-slate-400">{work.genre || 'Unspecified'}</span>
+              <span className="sw-tag-label">{work.genre || 'Unspecified'}</span>
               <button
                 type="button"
                 onClick={() => onRequestDelete(work)}
-                className="rounded-full border border-rose-400/30 px-4 py-2 text-sm font-medium text-rose-200 transition hover:bg-rose-400/10 hover:text-rose-100"
+                className="sw-delete-button"
               >
                 Delete
               </button>

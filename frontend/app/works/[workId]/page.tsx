@@ -261,7 +261,7 @@ export default function WorkPage({ params }: WorkPageProps) {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.08),_transparent_30%),linear-gradient(180deg,#020617_0%,#020617_45%,#07111f_100%)] px-4 py-6 text-slate-100 sm:px-6 lg:px-8">
+      <main className="sw-page-shell">
         <div className="mx-auto max-w-5xl rounded-[2rem] border border-slate-200/10 bg-slate-950/80 p-6">Loading work...</div>
       </main>
     );
@@ -269,7 +269,7 @@ export default function WorkPage({ params }: WorkPageProps) {
 
   if (!work) {
     return (
-      <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.08),_transparent_30%),linear-gradient(180deg,#020617_0%,#020617_45%,#07111f_100%)] px-4 py-6 text-slate-100 sm:px-6 lg:px-8">
+      <main className="sw-page-shell">
         <div className="mx-auto max-w-5xl rounded-[2rem] border border-slate-200/10 bg-slate-950/80 p-6">
           <p className="text-slate-300">Work not found.</p>
           <Link href="/dashboard" className="mt-4 inline-block rounded-full border border-slate-200/10 px-4 py-2 text-sm text-slate-200 transition hover:bg-slate-900">
@@ -281,7 +281,7 @@ export default function WorkPage({ params }: WorkPageProps) {
   }
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.08),_transparent_30%),linear-gradient(180deg,#020617_0%,#020617_45%,#07111f_100%)] px-4 py-6 text-slate-100 sm:px-6 lg:px-8">
+    <main className="sw-page-shell">
       <div className="mx-auto flex max-w-7xl flex-col gap-6 lg:flex-row">
         <aside className="w-full rounded-[2rem] border border-slate-200/10 bg-slate-950/80 p-4 shadow-2xl shadow-black/20 backdrop-blur lg:w-72 lg:flex-none">
           <div className="mb-4 flex items-center justify-between gap-3">
@@ -326,13 +326,13 @@ export default function WorkPage({ params }: WorkPageProps) {
           </nav>
         </aside>
 
-        <section className="min-h-[60vh] flex-1 rounded-[2rem] border border-slate-200/10 bg-slate-950/80 p-6 shadow-2xl shadow-black/20 backdrop-blur">
+        <section className="sw-section-panel flex-1">
           {selectedItem === 'overview' ? (
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-3 border-b border-slate-200/10 pb-5">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.3em] text-amber-300">Overview</p>
+                    <p className="sw-section-heading">Overview</p>
                     <h1 className="text-3xl font-semibold tracking-tight text-slate-100">{work.title}</h1>
                   </div>
                   <button
@@ -347,12 +347,12 @@ export default function WorkPage({ params }: WorkPageProps) {
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className="rounded-3xl border border-slate-200/10 bg-slate-900/70 p-4">
-                  <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Genre</p>
+                <div className="sw-field-container">
+                  <p className="sw-field-title">Genre</p>
                   <p className="mt-2 text-lg font-medium text-slate-100">{work.genre || 'Unspecified'}</p>
                 </div>
 
-                <div className="rounded-3xl border border-slate-200/10 bg-slate-900/70 p-4">
+                <div className="sw-field-container">
                   <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Status</p>
                   <select
                     value={normalizeStatus(work.status)}
@@ -375,7 +375,7 @@ export default function WorkPage({ params }: WorkPageProps) {
             <div className="flex h-full flex-col gap-5">
               <div className="flex items-center justify-between gap-4 border-b border-slate-200/10 pb-5">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-amber-300">Scenes</p>
+                  <p className="sw-section-heading">Scenes</p>
                 </div>
                 <button
                     type="button"
@@ -521,7 +521,7 @@ export default function WorkPage({ params }: WorkPageProps) {
             <div className="flex h-full flex-col gap-5">
               <div className="flex items-center justify-between gap-4 border-b border-slate-200/10 pb-5">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-amber-300">Characters</p>
+                  <p className="sw-section-heading">Characters</p>
                 </div>
                 <button
                     type="button"

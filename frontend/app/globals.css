@@ -1,6 +1,5 @@
 @tailwind base;
 @tailwind components;
-@tailwind utilities;
 
 :root {
   color-scheme: dark;
@@ -16,3 +15,50 @@ body {
 * {
   box-sizing: border-box;
 }
+
+@layer components {
+  .sw-page-shell {
+    @apply min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.08),_transparent_30%),linear-gradient(180deg,#020617_0%,#020617_45%,#07111f_100%)] px-4 py-6 text-slate-100 sm:px-6 lg:px-8;
+  }
+
+  .sw-section-panel {
+    @apply rounded-[2rem] border border-slate-200/10 bg-slate-950/80 p-5 shadow-2xl shadow-black/20 sm:p-6;
+  }
+
+  .sw-field-container {
+    @apply rounded-3xl border border-slate-200/10 bg-slate-900/70 p-4;
+  }
+
+  .sw-field-title {
+    @apply text-xs uppercase tracking-[0.25em] text-slate-400;
+  }
+
+  .sw-field-value {
+    @apply mt-2 text-3xl font-semibold;
+  }
+
+  .sw-tag-label {
+    @apply inline-flex rounded-full border px-3 py-1 text-xs font-medium;
+  }
+
+  .sw-important-button {
+    @apply rounded-full bg-amber-300 border border-slate-200/10 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-amber-200;
+  }
+  .sw-delete-button {
+    @apply rounded-full border border-rose-400/30 px-4 py-2 text-sm font-medium text-rose-200 transition hover:bg-rose-400/10 hover:text-rose-100;
+  }
+
+  .sw-heading-big {
+    @apply mt-2 text-3xl font-semibold tracking-tight sm:text-4xl;
+  }
+
+  .sw-section-heading {
+    @apply text-xs uppercase tracking-[0.35em] text-amber-300;
+  }
+
+  .sw-text-plain-small {
+    @apply mt-2 max-w-2xl text-sm leading-6 text-slate-300;
+  }
+}
+
+@tailwind utilities;
