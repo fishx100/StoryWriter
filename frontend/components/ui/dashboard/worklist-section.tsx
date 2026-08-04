@@ -2,26 +2,20 @@
 
 import { type Dispatch, type SetStateAction, useState } from "react";
 
-import { CreateWorkModal } from "@/components/create-work-modal";
+import { CreateWorkModal } from "@/components/modals/create-work-modal";
 import { useModal } from "@/components/modals/modal-provider";
 import { WorkList } from "@/components/work-list";
 import { Work } from "@/types/work";
+import { fetchJson } from "@/lib/api";
 
 type WorklistSectionProps = {
   works: Work[];
   setWorks?: Dispatch<SetStateAction<Work[]>>;
-  loading: boolean;
-  error: string | null;
-  setDeleteTarget?: (work: Work | null) => void;
 };
 
-export function WorklistSection({
-  works,
-  setWorks,
-  loading,
-  error,
-  setDeleteTarget,
-}: WorklistSectionProps) {
+export function WorklistSection({ works, setWorks }: WorklistSectionProps) {
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const { openModal, closeModal } = useModal();
 
   const openCreateWorkModal = () => {
@@ -34,6 +28,24 @@ export function WorklistSection({
       />,
     );
   };
+
+  async function handleDeleteWork(work: Work) {
+    setError(null);
+
+    try {
+      await fetchJson<void>(`/api/works/${work.id}`, {
+        method: "DELETE",
+      });
+
+      setWorks?.((currentWorks) =>
+        currentWorks.filter((w) => w.id !== work.id),
+      );
+    } catch {
+      setError("Could not delete work right now.");
+    }
+  }
+
+  /* @todo handle loading state for delete operation */
 
   return (
     <section className="sw-section-panel">
@@ -54,10 +66,7 @@ export function WorklistSection({
           Loading works...
         </div>
       ) : (
-        <WorkList
-          works={works}
-          onRequestDelete={setDeleteTarget || (() => {})}
-        />
+        <WorkList works={works} onRequestDelete={handleDeleteWork} />
       )}
 
       {error ? <p className="sw-text-warning">{error}</p> : null}

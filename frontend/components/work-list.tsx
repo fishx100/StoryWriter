@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import type { Work } from "@/types/work";
+import { ConfirmDeleteModal } from "./confirm-delete-modal";
+import { useModal } from "./modals/modal-provider";
 
 type WorkListProps = {
   works: Work[];
@@ -40,6 +42,8 @@ function statusLabel(status: string): string {
 }
 
 export function WorkList({ works, onRequestDelete }: WorkListProps) {
+  const { openModal, closeModal } = useModal();
+
   if (works.length === 0) {
     return (
       <div className="rounded-3xl border border-dashed border-slate-200/10 bg-slate-950/40 p-8 text-slate-300">
@@ -47,6 +51,19 @@ export function WorkList({ works, onRequestDelete }: WorkListProps) {
       </div>
     );
   }
+
+  const openDeleteModal = (work: Work) => {
+    openModal(
+      <ConfirmDeleteModal
+        workTitle={work.title}
+        onClose={closeModal}
+        onConfirm={async () => {
+          onRequestDelete(work);
+          closeModal();
+        }}
+      />,
+    );
+  };
 
   return (
     <div className="grid gap-4 xl:grid-cols-2">
@@ -77,7 +94,7 @@ export function WorkList({ works, onRequestDelete }: WorkListProps) {
               </span>
               <button
                 type="button"
-                onClick={() => onRequestDelete(work)}
+                onClick={openDeleteModal.bind(null, work)}
                 className="sw-delete-button"
               >
                 Delete
