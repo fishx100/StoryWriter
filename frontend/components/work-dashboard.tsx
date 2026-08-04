@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { ConfirmDeleteModal } from "@/components/confirm-delete-modal";
 import { fetchJson } from "@/lib/api";
 import { DashboardHeader } from "./ui/dashboard/dashboard-header";
 import { WorklistSection } from "./ui/dashboard/worklist-section";

@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import type { Work } from "@/types/work";
-import { ConfirmDeleteModal } from "./confirm-delete-modal";
+import { ConfirmDeleteModal } from "./modals/confirm-delete-modal";
 import { useModal } from "./modals/modal-provider";
 
 type WorkListProps = {
