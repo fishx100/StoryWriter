@@ -7,6 +7,7 @@ import { useModal } from "@/components/modals/modal-provider";
 import { WorkList } from "@/components/work-list";
 import { Work } from "@/types/work";
 import { fetchJson } from "@/lib/api";
+import { SectionPanel } from "@/components/layout/section-panel";
 
 type WorklistSectionProps = {
   works: Work[];
@@ -48,14 +49,12 @@ export function WorklistSection({ works, setWorks }: WorklistSectionProps) {
   /* @todo handle loading state for delete operation */
 
   return (
-    <section className="sw-section-panel">
-      <div className="mb-5 flex items-center justify-between gap-4">
-        <div>
-          <p className="sw-section-heading">Your Works</p>
-          <h2 className="mt-2 text-2xl font-semibold">
-            Browse and manage story projects
-          </h2>
-        </div>
+    <SectionPanel title="Your Works">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-2xl font-semibold">
+          Browse and manage story projects
+        </h2>
+
         <button onClick={openCreateWorkModal} className="sw-important-button">
           Create Work
         </button>
@@ -70,6 +69,6 @@ export function WorklistSection({ works, setWorks }: WorklistSectionProps) {
       )}
 
       {error ? <p className="sw-text-warning">{error}</p> : null}
-    </section>
+    </SectionPanel>
   );
 }

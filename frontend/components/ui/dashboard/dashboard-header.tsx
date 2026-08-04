@@ -1,6 +1,7 @@
 "use client";
 
 import { FieldContainer } from "@/components/layout/field-container";
+import { SectionPanel } from "@/components/layout/section-panel";
 import { SignIn } from "./sign-in";
 
 type DashboardHeaderProps = {
@@ -9,10 +10,9 @@ type DashboardHeaderProps = {
 
 export function DashboardHeader({ totalWorks }: DashboardHeaderProps) {
   return (
-    <header className="sw-section-panel">
+    <SectionPanel title="StoryWriter">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="sw-section-heading">StoryWriter</p>
           <h1 className="sw-heading-big">Dashboard</h1>
           <p className="sw-text-plain-small">
             Mock authenticated workspace for planning and drafting stories.
@@ -27,6 +27,6 @@ export function DashboardHeader({ totalWorks }: DashboardHeaderProps) {
         <FieldContainer fieldName="PLACEHOLDER" fieldValue="PLACEHOLDER" />
         <FieldContainer fieldName="PLACEHOLDER" fieldValue="PLACEHOLDER" />
       </div>
-    </header>
+    </SectionPanel>
   );
 }
