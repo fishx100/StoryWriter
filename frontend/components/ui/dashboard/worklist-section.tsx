@@ -1,24 +1,40 @@
 "use client";
 
+import { type Dispatch, type SetStateAction, useState } from "react";
+
+import { CreateWorkModal } from "@/components/create-work-modal";
+import { useModal } from "@/components/modals/modal-provider";
 import { WorkList } from "@/components/work-list";
 import { Work } from "@/types/work";
-import { useState } from "react";
 
 type WorklistSectionProps = {
   works: Work[];
+  setWorks?: Dispatch<SetStateAction<Work[]>>;
   loading: boolean;
   error: string | null;
-  setCreateOpen?: (open: boolean) => void;
   setDeleteTarget?: (work: Work | null) => void;
 };
 
 export function WorklistSection({
   works,
+  setWorks,
   loading,
   error,
-  setCreateOpen,
   setDeleteTarget,
 }: WorklistSectionProps) {
+  const { openModal, closeModal } = useModal();
+
+  const openCreateWorkModal = () => {
+    openModal(
+      <CreateWorkModal
+        onClose={closeModal}
+        onWorkCreated={(work) => {
+          setWorks?.((currentWorks) => [...currentWorks, work]);
+        }}
+      />,
+    );
+  };
+
   return (
     <section className="sw-section-panel">
       <div className="mb-5 flex items-center justify-between gap-4">
@@ -28,11 +44,7 @@ export function WorklistSection({
             Browse and manage story projects
           </h2>
         </div>
-        <button
-          type="button"
-          onClick={() => setCreateOpen && setCreateOpen(true)}
-          className="sw-important-button"
-        >
+        <button onClick={openCreateWorkModal} className="sw-important-button">
           Create Work
         </button>
       </div>
@@ -48,7 +60,7 @@ export function WorklistSection({
         />
       )}
 
-      {error ? <p className="mt-4 text-sm text-rose-300">{error}</p> : null}
+      {error ? <p className="sw-text-warning">{error}</p> : null}
     </section>
   );
 }

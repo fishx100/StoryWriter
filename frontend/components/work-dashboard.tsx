@@ -3,11 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { ConfirmDeleteModal } from "@/components/confirm-delete-modal";
-import { CreateWorkModal } from "@/components/create-work-modal";
 import { fetchJson } from "@/lib/api";
-import type { CreateWorkInput, Work } from "@/types/work";
 import { DashboardHeader } from "./ui/dashboard/dashboard-header";
 import { WorklistSection } from "./ui/dashboard/worklist-section";
+import { Work } from "@/types/work";
 
 type WorkDashboardProps = {
   mode: "dashboard" | "works";
@@ -16,8 +15,6 @@ type WorkDashboardProps = {
 export function WorkDashboard({ mode }: WorkDashboardProps) {
   const [works, setWorks] = useState<Work[]>([]);
   const [loading, setLoading] = useState(true);
-  const [createOpen, setCreateOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Work | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,27 +48,6 @@ export function WorkDashboard({ mode }: WorkDashboardProps) {
 
   const totalWorks = useMemo(() => works.length, [works]);
 
-  async function handleCreateWork(input: CreateWorkInput) {
-    setSaving(true);
-    setError(null);
-
-    try {
-      const work = await fetchJson<Work>("/api/works", {
-        method: "POST",
-        body: JSON.stringify(input),
-      });
-
-      setWorks((current) => [work, ...current]);
-      setCreateOpen(false);
-    } catch {
-      setError(
-        "Could not create work. Check the backend is running on port 8000.",
-      );
-    } finally {
-      setSaving(false);
-    }
-  }
-
   async function handleDeleteWork() {
     if (!deleteTarget) {
       return;
@@ -102,20 +78,12 @@ export function WorkDashboard({ mode }: WorkDashboardProps) {
 
         <WorklistSection
           works={works}
+          setWorks={setWorks}
           loading={loading}
           error={error}
-          setCreateOpen={setCreateOpen}
           setDeleteTarget={setDeleteTarget}
         />
       </div>
-
-      <CreateWorkModal
-        open={createOpen}
-        loading={saving}
-        error={error}
-        onClose={() => setCreateOpen(false)}
-        onSubmit={handleCreateWork}
-      />
 
       <ConfirmDeleteModal
         open={deleteTarget !== null}

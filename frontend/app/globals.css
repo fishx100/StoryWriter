@@ -41,13 +41,20 @@ body {
     @apply inline-flex rounded-full border px-3 py-1 text-xs font-medium;
   }
 
+  /** Buttons */
   .sw-important-button {
     @apply rounded-full bg-amber-300 border border-slate-200/10 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-amber-200;
   }
+
+  .sw-normal-button {
+    @apply rounded-full border border-slate-200/10 px-4 py-2 text-sm text-slate-300 transition hover:bg-slate-900;
+  }
+
   .sw-delete-button {
     @apply rounded-full border border-rose-400/30 px-4 py-2 text-sm font-medium text-rose-200 transition hover:bg-rose-400/10 hover:text-rose-100;
   }
 
+  /* Text */
   .sw-heading-big {
     @apply mt-2 text-3xl font-semibold tracking-tight sm:text-4xl;
   }
@@ -58,6 +65,30 @@ body {
 
   .sw-text-plain-small {
     @apply mt-2 max-w-2xl text-sm leading-6 text-slate-300;
+  }
+
+  .sw-text-warning {
+    @apply text-sm text-rose-300;
+  }
+
+  /* Modal */
+  .sw-modal-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-sm;
+  }
+  .sw-modal-panel {
+    @apply w-full max-w-lg rounded-3xl border border-slate-200/10 bg-slate-950 p-6 text-slate-100 shadow-2xl shadow-black/40;
+  }
+  .sw-modal-close {
+    @apply absolute top-4 right-4 rounded-full border border-slate-200/10 px-2 py-1 text-sm text-slate-200 hover:bg-slate-800;
+  }
+  .sw-modal-title {
+    @apply text-lg font-semibold text-slate-100;
+  }
+  .sw-modal-body {
+    @apply mt-4 text-sm text-slate-200;
+  }
+  .sw-modal-footer {
+    @apply mt-6 flex justify-end gap-3;
   }
 }
 

@@ -1,20 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-import type { CreateWorkInput } from "@/types/work";
+import { InputField } from "@/components/forms/input-field";
+import { DropdownField } from "@/components/forms/dropdown-field";
+import { TextareaField } from "@/components/forms/textarea-field";
+import type { CreateWorkInput, Work } from "@/types/work";
+import { fetchJson } from "@/lib/api";
 
 type CreateWorkModalProps = {
-  open: boolean;
-  loading: boolean;
-  error: string | null;
   onClose: () => void;
-  onSubmit: (work: CreateWorkInput) => Promise<void>;
-  mode?: "create" | "edit";
-  title?: string;
-  subtitle?: string;
-  submitLabel?: string;
-  initialValues?: Partial<CreateWorkInput>;
+  onWorkCreated?: (work: Work) => void;
 };
 
 const initialFormState: CreateWorkInput = {
@@ -25,159 +21,117 @@ const initialFormState: CreateWorkInput = {
 };
 
 export function CreateWorkModal({
-  open,
-  loading,
-  error,
   onClose,
-  onSubmit,
-  mode = "create",
-  title,
-  subtitle,
-  submitLabel,
-  initialValues,
+  onWorkCreated,
 }: CreateWorkModalProps) {
   const [form, setForm] = useState<CreateWorkInput>(initialFormState);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (open) {
-      setForm({
-        ...initialFormState,
-        ...initialValues,
+  async function handleCreateWork(input: CreateWorkInput) {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const work = await fetchJson<Work>("/api/works", {
+        method: "POST",
+        body: JSON.stringify(input),
       });
-    }
-  }, [initialValues, open]);
 
-  if (!open) {
-    return null;
+      onWorkCreated?.(work);
+      onClose();
+    } catch {
+      setError("Could not create work. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  const heading = title ?? (mode === "edit" ? "Edit Work" : "Create Work");
-  const description =
-    subtitle ??
-    (mode === "edit"
-      ? "Update the core details for this project."
-      : "Start a new story project");
-  const actionLabel =
-    submitLabel ?? (mode === "edit" ? "Save Changes" : "Create Work");
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-3xl border border-slate-200/10 bg-slate-950 p-6 text-slate-100 shadow-2xl shadow-black/40">
-        <div className="mb-6 flex items-start justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-amber-300">
-              {mode === "edit" ? "Edit Work" : "Create Work"}
-            </p>
-            <h2 className="mt-2 text-2xl font-semibold">{heading}</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-300">
-              {description}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full border border-slate-200/10 px-3 py-1 text-sm text-slate-300 transition hover:bg-slate-900"
-          >
-            Close
-          </button>
+    <div className="sw-modal-panel">
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <p className="sw-section-heading">Create Work</p>
+          <p className="sw-text-plain-small">Start a new story project</p>
+        </div>
+      </div>
+
+      <form
+        className="space-y-4"
+        onSubmit={async (event) => {
+          event.preventDefault();
+          await handleCreateWork(form);
+        }}
+      >
+        <InputField
+          label="Title"
+          value={form.title}
+          onChange={(value) =>
+            setForm((current) => ({
+              ...current,
+              title: value,
+            }))
+          }
+          placeholder="The Sunken Crown"
+        />
+
+        <TextareaField
+          label="Premise"
+          value={form.premise}
+          onChange={(value) =>
+            setForm((current) => ({
+              ...current,
+              premise: value,
+            }))
+          }
+          placeholder="A disgraced heir must reclaim a drowned kingdom."
+        />
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <InputField
+            label="Genre"
+            value={form.genre}
+            onChange={(value) =>
+              setForm((current) => ({
+                ...current,
+                genre: value,
+              }))
+            }
+            placeholder="Fantasy"
+          />
+
+          <DropdownField
+            label="Status"
+            value={form.status}
+            onChange={(value) =>
+              setForm((current) => ({
+                ...current,
+                status: value as CreateWorkInput["status"],
+              }))
+            }
+            options={[
+              { label: "Todo", value: "todo" },
+              { label: "In progress", value: "in_progress" },
+              { label: "Done", value: "done" },
+            ]}
+          />
         </div>
 
-        <form
-          className="space-y-4"
-          onSubmit={async (event) => {
-            event.preventDefault();
-            await onSubmit(form);
-          }}
-        >
-          <label className="block space-y-2">
-            <span className="text-sm text-slate-300">Title</span>
-            <input
-              value={form.title}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  title: event.target.value,
-                }))
-              }
-              className="w-full rounded-2xl border border-slate-200/10 bg-slate-900 px-4 py-3 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-amber-300/50"
-              placeholder="The Sunken Crown"
-            />
-          </label>
+        {error ? <p className="sw-text-warning">{error}</p> : null}
 
-          <label className="block space-y-2">
-            <span className="text-sm text-slate-300">Premise</span>
-            <textarea
-              value={form.premise}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  premise: event.target.value,
-                }))
-              }
-              className="min-h-28 w-full rounded-2xl border border-slate-200/10 bg-slate-900 px-4 py-3 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-amber-300/50"
-              placeholder="A disgraced heir must reclaim a drowned kingdom."
-            />
-          </label>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="block space-y-2">
-              <span className="text-sm text-slate-300">Genre</span>
-              <input
-                value={form.genre}
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    genre: event.target.value,
-                  }))
-                }
-                className="w-full rounded-2xl border border-slate-200/10 bg-slate-900 px-4 py-3 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-amber-300/50"
-                placeholder="Fantasy"
-              />
-            </label>
-
-            <label className="block space-y-2">
-              <span className="text-sm text-slate-300">Status</span>
-              <select
-                value={form.status}
-                onChange={(event) =>
-                  setForm((current) => ({
-                    ...current,
-                    status: event.target.value,
-                  }))
-                }
-                className="w-full rounded-2xl border border-slate-200/10 bg-slate-900 px-4 py-3 text-slate-100 outline-none transition focus:border-amber-300/50"
-              >
-                <option value="todo">Todo</option>
-                <option value="in_progress">In progress</option>
-                <option value="done">Done</option>
-              </select>
-            </label>
-          </div>
-
-          {error ? <p className="text-sm text-rose-300">{error}</p> : null}
-
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-full border border-slate-200/10 px-4 py-2 text-sm text-slate-300 transition hover:bg-slate-900"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="rounded-full bg-amber-300 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {loading
-                ? mode === "edit"
-                  ? "Saving..."
-                  : "Creating..."
-                : actionLabel}
-            </button>
-          </div>
-        </form>
-      </div>
+        <div className="flex items-center justify-end gap-3 pt-2">
+          <button type="button" onClick={onClose} className="sw-normal-button">
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="sw-important-button"
+          >
+            {loading ? "Creating..." : "Create Work"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
