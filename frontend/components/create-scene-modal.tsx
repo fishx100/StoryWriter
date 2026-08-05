@@ -16,15 +16,11 @@ const initial: CreateSceneInput = {
   status: "todo",
 };
 
-export function CreateSceneModal({
-  workId,
-  onClose,
-  onSubmit,
-}: Props) {
+export function CreateSceneModal({ workId, onClose, onSubmit }: Props) {
   const [form, setForm] = useState<CreateSceneInput>(initial);
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   useEffect(() => {
     setForm(initial);
   }, []);
@@ -53,10 +49,7 @@ export function CreateSceneModal({
           </button>
         </div>
 
-        <form
-          className="mt-4 space-y-3"
-          onSubmit={handleSubmit}
-        >
+        <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
           <label className="block">
             <div className="text-sm text-slate-300">Title</div>
             <input
@@ -79,7 +72,7 @@ export function CreateSceneModal({
             />
           </label>
 
-            {error ? <p className="text-rose-400">{error}</p> : null}
+          {error ? <p className="text-rose-400">{error}</p> : null}
 
           <div className="flex justify-end gap-3">
             <button

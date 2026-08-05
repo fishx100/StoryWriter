@@ -3,16 +3,10 @@
 import Link from "next/link";
 import { use, useEffect, useMemo, useState } from "react";
 
-import { ConfirmDeleteModal } from "@/components/modals/confirm-delete-modal";
-import { CreateWorkModal } from "@/components/modals/create-work-modal";
-import { CharacterList } from "@/components/character-list";
 import { fetchJson } from "@/lib/api";
-import { SceneList } from "@/components/scene-list";
 import type { Character } from "@/types/character";
 import type { Work } from "@/types/work";
 import type { Scene } from "@/types/scene";
-import type { UpdateWorkInput } from "@/types/work";
-import { FieldContainer } from "@/components/layout/field-container";
 import { SideNavigationPanel } from "@/components/navigation/side-navigation-panel";
 import { WorkOverviewSection } from "@/components/ui/work/work-overview-section";
 import { SceneListSection } from "@/components/ui/work/scene-list-section";
@@ -21,15 +15,6 @@ type WorkPageProps = {
   params: Promise<{ workId: string }>;
 };
 
-function normalizeStatus(status: string): "todo" | "in_progress" | "done" {
-  if (status === "in_progress" || status === "planning") {
-    return "in_progress";
-  }
-  if (status === "done" || status === "revising") {
-    return "done";
-  }
-  return "todo";
-}
 
 export default function WorkPage({ params }: WorkPageProps) {
   const { workId } = use(params);
@@ -342,17 +327,17 @@ export default function WorkPage({ params }: WorkPageProps) {
             }
           }}
         />
-        
+
         {selectedItem === "overview" ? (
-            <div className="flex-col gap-6 flex-1">
-              <WorkOverviewSection work={work} />
-            </div>
+          <div className="flex-col gap-6 flex-1">
+            <WorkOverviewSection work={work} />
+          </div>
         ) : null}
 
         {selectedItem === "scenes" ? (
           <div className="flex-col gap-6 flex-1">
-              <SceneListSection work={work} />
-            </div>
+            <SceneListSection work={work} />
+          </div>
         ) : null}
       </div>
     </main>
