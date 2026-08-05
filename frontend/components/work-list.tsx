@@ -3,43 +3,12 @@ import Link from "next/link";
 import type { Work } from "@/types/work";
 import { ConfirmDeleteModal } from "./modals/confirm-delete-modal";
 import { useModal } from "./modals/modal-provider";
+import { StatusBadge } from "./ui/work/status-badge";
 
 type WorkListProps = {
   works: Work[];
   onRequestDelete: (work: Work) => void;
 };
-
-function normalizeStatus(status: string): "todo" | "in_progress" | "done" {
-  if (status === "in_progress" || status === "planning") {
-    return "in_progress";
-  }
-  if (status === "done" || status === "revising") {
-    return "done";
-  }
-  return "todo";
-}
-
-function statusBadgeClass(status: string): string {
-  const normalized = normalizeStatus(status);
-  if (normalized === "done") {
-    return "border-emerald-300/40 bg-emerald-400/10 text-emerald-200";
-  }
-  if (normalized === "in_progress") {
-    return "border-amber-300/40 bg-amber-400/10 text-amber-100";
-  }
-  return "border-sky-300/40 bg-sky-400/10 text-sky-100";
-}
-
-function statusLabel(status: string): string {
-  const normalized = normalizeStatus(status);
-  if (normalized === "in_progress") {
-    return "In progress";
-  }
-  if (normalized === "done") {
-    return "Done";
-  }
-  return "Todo";
-}
 
 export function WorkList({ works, onRequestDelete }: WorkListProps) {
   const { openModal, closeModal } = useModal();
@@ -77,9 +46,7 @@ export function WorkList({ works, onRequestDelete }: WorkListProps) {
               href={`/works/${work.id}`}
               className="min-w-0 flex-1 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-300"
             >
-              <p className={`sw-tag-label ${statusBadgeClass(work.status)}`}>
-                {statusLabel(work.status)}
-              </p>
+              <StatusBadge status={work.status} />
               <h3 className="mt-2 text-xl font-semibold text-slate-100 transition group-hover:text-amber-100">
                 {work.title}
               </h3>
