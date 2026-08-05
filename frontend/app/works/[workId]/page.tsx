@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { use, useEffect, useMemo, useState } from "react";
 
-import { ConfirmDeleteModal } from "@/components/confirm-delete-modal";
-import { CreateWorkModal } from "@/components/create-work-modal";
+import { ConfirmDeleteModal } from "@/components/modals/confirm-delete-modal";
+import { CreateWorkModal } from "@/components/modals/create-work-modal";
 import { CharacterList } from "@/components/character-list";
 import { fetchJson } from "@/lib/api";
 import { SceneList } from "@/components/scene-list";
@@ -13,6 +13,9 @@ import type { Work } from "@/types/work";
 import type { Scene } from "@/types/scene";
 import type { UpdateWorkInput } from "@/types/work";
 import { FieldContainer } from "@/components/layout/field-container";
+import { SideNavigationPanel } from "@/components/navigation/side-navigation-panel";
+import { WorkOverviewSection } from "@/components/ui/work/work-overview-section";
+import { SceneListSection } from "@/components/ui/work/scene-list-section";
 
 type WorkPageProps = {
   params: Promise<{ workId: string }>;
@@ -319,355 +322,39 @@ export default function WorkPage({ params }: WorkPageProps) {
   return (
     <main className="sw-page-shell">
       <div className="mx-auto flex max-w-7xl flex-col gap-6 lg:flex-row">
-        <aside className="w-full rounded-[2rem] border border-slate-200/10 bg-slate-950/80 p-4 shadow-2xl shadow-black/20 backdrop-blur lg:w-72 lg:flex-none">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <Link
-              href="/dashboard"
-              className="rounded-full border border-slate-200/10 bg-slate-900 px-3 py-2 text-sm font-medium text-slate-200 transition hover:border-amber-300/40 hover:text-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-300"
-            >
-              Back
-            </Link>
-            <span className="text-xs uppercase tracking-[0.3em] text-slate-400">
-              Sections
-            </span>
-          </div>
-
-          <nav className="space-y-2">
-            {[
-              { id: "overview" as const, label: "Overview" },
-              { id: "scenes" as const, label: "Scenes" },
-              { id: "characters" as const, label: "Characters" },
-            ].map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => {
-                  setSelectedItem(item.id);
-                  if (item.id === "scenes") {
-                    setSelectedSceneId(null);
-                    setSceneEditing(false);
-                    setSceneContent("");
-                    void loadScenesOnce();
-                  }
-                  if (item.id === "characters") {
-                    void loadCharactersOnce();
-                  }
-                }}
-                className={`flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left text-sm font-medium transition ${
-                  selectedItem === item.id
-                    ? "bg-amber-300 text-slate-950"
-                    : "bg-slate-900 text-slate-200 hover:bg-slate-800"
-                }`}
-              >
-                {item.label}
-                {item.id === "scenes" && scenesLoaded ? (
-                  <span className="text-xs opacity-80">{scenes.length}</span>
-                ) : null}
-                {item.id === "characters" && charactersLoaded ? (
-                  <span className="text-xs opacity-80">
-                    {characters.length}
-                  </span>
-                ) : null}
-              </button>
-            ))}
-          </nav>
-        </aside>
-
-        <section className="sw-section-panel flex-1">
-          {selectedItem === "overview" ? (
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col gap-3 border-b border-slate-200/10 pb-5">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
-                    <p className="sw-section-heading">Overview</p>
-                    <h1 className="text-3xl font-semibold tracking-tight text-slate-100">
-                      {work.title}
-                    </h1>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setEditWorkOpen(true)}
-                    className="rounded-full border border-slate-200/10 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-900"
-                  >
-                    Edit Work
-                  </button>
-                </div>
-                <p className="max-w-3xl text-sm leading-6 text-slate-300">
-                  {work.premise || "No premise yet."}
-                </p>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <FieldContainer
-                  fieldName="Genre"
-                  fieldValue={work.genre || "Unspecified"}
-                />
-
-                <div className="sw-field-container">
-                  <p className="text-xs uppercase tracking-[0.25em] text-slate-400">
-                    Status
-                  </p>
-                  <select
-                    value={normalizeStatus(work.status)}
-                    onChange={(event) => {
-                      void handleStatusChange(event.target.value);
-                    }}
-                    className="mt-2 w-full rounded-2xl border border-slate-200/10 bg-slate-900 px-4 py-3 text-slate-100 outline-none transition focus:border-amber-300/40"
-                    aria-label="Work status"
-                  >
-                    <option value="todo">Todo</option>
-                    <option value="in_progress">In progress</option>
-                    <option value="done">Done</option>
-                  </select>
-                </div>
-              </div>
-
-              {workError ? (
-                <p className="text-sm text-rose-300">{workError}</p>
-              ) : null}
+        <SideNavigationPanel
+          backLink="/dashboard"
+          options={[
+            { id: "overview" as const, label: "Overview" },
+            { id: "scenes" as const, label: "Scenes" },
+            { id: "characters" as const, label: "Characters" },
+          ]}
+          onSelectOption={(optionId) => {
+            setSelectedItem(optionId as "overview" | "scenes" | "characters");
+            if (optionId === "scenes") {
+              setSelectedSceneId(null);
+              setSceneEditing(false);
+              setSceneContent("");
+              void loadScenesOnce();
+            }
+            if (optionId === "characters") {
+              void loadCharactersOnce();
+            }
+          }}
+        />
+        
+        {selectedItem === "overview" ? (
+            <div className="flex-col gap-6 flex-1">
+              <WorkOverviewSection work={work} />
             </div>
-          ) : selectedItem === "scenes" ? (
-            <div className="flex h-full flex-col gap-5">
-              <div className="flex items-center justify-between gap-4 border-b border-slate-200/10 pb-5">
-                <div>
-                  <p className="sw-section-heading">Scenes</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => undefined}
-                  className="rounded-full border border-slate-200/10 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-900"
-                >
-                  Create Scene
-                </button>
-              </div>
+        ) : null}
 
-              {scenesLoading && !scenesLoaded ? (
-                <div className="flex items-center justify-center rounded-[2rem] border border-dashed border-slate-200/10 bg-slate-900/50 p-8 text-slate-300">
-                  Loading scenes...
-                </div>
-              ) : (
-                <>
-                  <SceneList
-                    workId={work.id}
-                    scenes={scenes}
-                    onRequestDelete={setDeleteTarget}
-                    onReorder={handleReorderScenes}
-                    onSelectScene={(scene) => {
-                      setSelectedSceneId(scene.id);
-                      setSceneEditing(false);
-                      setSceneContent("");
-                    }}
-                  />
-
-                  {selectedScene ? (
-                    <div className="flex flex-col gap-5 rounded-[2rem] border border-slate-200/10 bg-slate-900/70 p-5">
-                      <div className="flex items-center justify-between gap-4 border-b border-slate-200/10 pb-5">
-                        <div>
-                          <p className="text-xs uppercase tracking-[0.3em] text-amber-300">
-                            Scene
-                          </p>
-                          <h3 className="mt-2 text-2xl font-semibold text-slate-100">
-                            {selectedScene.title}
-                          </h3>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedSceneId(null);
-                            setSceneEditing(false);
-                            setSceneContent("");
-                          }}
-                          className="rounded-full border border-slate-200/10 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-900"
-                        >
-                          Back to scenes
-                        </button>
-                      </div>
-
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="rounded-3xl border border-slate-200/10 bg-slate-900/70 p-4">
-                          <p className="text-xs uppercase tracking-[0.25em] text-slate-400">
-                            Status
-                          </p>
-                          <select
-                            value={normalizeStatus(selectedScene.status)}
-                            onChange={(event) => {
-                              void handleUpdateSceneStatus(
-                                selectedScene.id,
-                                event.target.value,
-                              );
-                            }}
-                            className="mt-2 w-full rounded-2xl border border-slate-200/10 bg-slate-900 px-4 py-3 text-slate-100 outline-none transition focus:border-amber-300/40"
-                            aria-label="Scene status"
-                          >
-                            <option value="todo">Todo</option>
-                            <option value="in_progress">In progress</option>
-                            <option value="done">Done</option>
-                          </select>
-                        </div>
-
-                        <div className="rounded-3xl border border-slate-200/10 bg-slate-900/70 p-4">
-                          <p className="text-xs uppercase tracking-[0.25em] text-slate-400">
-                            Words
-                          </p>
-                          <p className="mt-2 text-lg font-medium text-slate-100">
-                            {selectedSceneWordCount}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="rounded-3xl border border-slate-200/10 bg-slate-900/70 p-5">
-                        <p className="text-sm uppercase tracking-[0.25em] text-slate-400">
-                          Summary
-                        </p>
-                        <p className="mt-2 text-sm leading-6 text-slate-200">
-                          {selectedScene.summary || "No summary yet."}
-                        </p>
-                      </div>
-
-                      <div className="rounded-3xl border border-slate-200/10 bg-slate-900/70 p-5">
-                        <div className="mb-4 flex items-center justify-between gap-4">
-                          <h4 className="text-lg font-semibold text-slate-100">
-                            Content
-                          </h4>
-                          <div className="flex items-center gap-3">
-                            <span className="rounded-full border border-slate-200/10 px-3 py-1 text-xs uppercase tracking-[0.25em] text-slate-400">
-                              {selectedSceneWordCount} words
-                            </span>
-                            {!sceneEditing ? (
-                              <button
-                                type="button"
-                                onClick={() => setSceneEditing(true)}
-                                className="rounded-full border border-slate-200/10 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-900"
-                              >
-                                Edit
-                              </button>
-                            ) : null}
-                          </div>
-                        </div>
-
-                        {sceneEditing ? (
-                          <div className="space-y-4">
-                            <textarea
-                              value={sceneContent}
-                              onChange={(event) =>
-                                setSceneContent(event.target.value)
-                              }
-                              className="min-h-[320px] w-full rounded-2xl border border-slate-200/10 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-amber-300/50"
-                              placeholder="Write your scene content here..."
-                            />
-                            <div className="flex items-center justify-end gap-3">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setSceneContent(selectedScene.content);
-                                  setSceneEditing(false);
-                                }}
-                                className="rounded-full border border-slate-200/10 px-4 py-2 text-slate-200 transition hover:bg-slate-900"
-                              >
-                                Cancel
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  void handleSaveSceneContent();
-                                }}
-                                disabled={sceneSaving}
-                                className="rounded-full bg-amber-300 px-4 py-2 font-semibold text-slate-950 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:opacity-60"
-                              >
-                                {sceneSaving ? "Saving..." : "Save"}
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="whitespace-pre-wrap rounded-2xl border border-slate-200/10 bg-slate-950/80 p-5 text-slate-200">
-                            {selectedScene.content ||
-                              "This scene has no content yet."}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="rounded-[2rem] border border-dashed border-slate-200/10 bg-slate-900/50 p-8 text-slate-300">
-                      Select a scene from the list to view its details.
-                    </div>
-                  )}
-
-                  {sceneError ? (
-                    <p className="text-sm text-rose-300">{sceneError}</p>
-                  ) : null}
-                </>
-              )}
+        {selectedItem === "scenes" ? (
+          <div className="flex-col gap-6 flex-1">
+              <SceneListSection work={work} />
             </div>
-          ) : selectedItem === "characters" ? (
-            <div className="flex h-full flex-col gap-5">
-              <div className="flex items-center justify-between gap-4 border-b border-slate-200/10 pb-5">
-                <div>
-                  <p className="sw-section-heading">Characters</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => undefined}
-                  className="rounded-full border border-slate-200/10 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-slate-900"
-                >
-                  Create Character
-                </button>
-              </div>
-
-              {charactersLoading && !charactersLoaded ? (
-                <div className="flex items-center justify-center rounded-[2rem] border border-dashed border-slate-200/10 bg-slate-900/50 p-8 text-slate-300">
-                  Loading characters...
-                </div>
-              ) : (
-                <CharacterList
-                  workId={work.id}
-                  characters={characters}
-                  onRequestDelete={() => undefined}
-                  onReorder={async () => undefined}
-                />
-              )}
-
-              {characterError ? (
-                <p className="text-sm text-rose-300">{characterError}</p>
-              ) : null}
-            </div>
-          ) : null}
-        </section>
+        ) : null}
       </div>
-
-      <ConfirmDeleteModal
-        open={deleteTarget !== null}
-        title={deleteTarget ? `Delete ${deleteTarget.title}?` : "Delete scene?"}
-        message={
-          deleteTarget
-            ? "This will permanently delete the scene. This action cannot be undone."
-            : "This action cannot be undone."
-        }
-        loading={deleting}
-        onClose={() => setDeleteTarget(null)}
-        onConfirm={handleDeleteScene}
-      />
-
-      <CreateWorkModal
-        open={editWorkOpen}
-        loading={editingWork}
-        error={workError}
-        mode="edit"
-        title="Edit Work"
-        subtitle="Update the title, summary, and genre for this project."
-        submitLabel="Save Changes"
-        initialValues={
-          work
-            ? {
-                title: work.title,
-                premise: work.premise,
-                genre: work.genre,
-                status: work.status,
-              }
-            : undefined
-        }
-        onClose={() => setEditWorkOpen(false)}
-        onSubmit={handleSaveWork}
-      />
     </main>
   );
 }

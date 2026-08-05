@@ -1,14 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { CreateSceneInput } from "@/types/scene";
+import type { CreateSceneInput, Scene } from "@/types/scene";
 
 type Props = {
-  open: boolean;
-  loading: boolean;
-  error: string | null;
+  workId: string;
   onClose: () => void;
-  onSubmit: (input: CreateSceneInput) => Promise<void>;
+  onSubmit: (input: CreateSceneInput) => Promise<Scene>;
 };
 
 const initial: CreateSceneInput = {
@@ -19,19 +17,31 @@ const initial: CreateSceneInput = {
 };
 
 export function CreateSceneModal({
-  open,
-  loading,
-  error,
+  workId,
   onClose,
   onSubmit,
 }: Props) {
   const [form, setForm] = useState<CreateSceneInput>(initial);
-
+  const [saving, setSaving] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  
   useEffect(() => {
-    if (open) setForm(initial);
-  }, [open]);
+    setForm(initial);
+  }, []);
 
-  if (!open) return null;
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setError(null);
+    try {
+      await onSubmit(form);
+    } catch (e) {
+      setError("Failed to create scene.");
+      throw e;
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -45,10 +55,7 @@ export function CreateSceneModal({
 
         <form
           className="mt-4 space-y-3"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            await onSubmit(form);
-          }}
+          onSubmit={handleSubmit}
         >
           <label className="block">
             <div className="text-sm text-slate-300">Title</div>
@@ -72,7 +79,7 @@ export function CreateSceneModal({
             />
           </label>
 
-          {error ? <p className="text-rose-400">{error}</p> : null}
+            {error ? <p className="text-rose-400">{error}</p> : null}
 
           <div className="flex justify-end gap-3">
             <button
@@ -84,10 +91,10 @@ export function CreateSceneModal({
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={saving}
               className="rounded bg-amber-300 px-4 py-2 text-slate-900"
             >
-              {loading ? "Creating..." : "Create"}
+              {saving ? "Creating..." : "Create"}
             </button>
           </div>
         </form>
