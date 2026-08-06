@@ -46,4 +46,6 @@ Thumbs.db
 npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
+
 backend/storywriter.db
+node_modules/
