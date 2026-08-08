@@ -33,7 +33,6 @@ export function SceneList({
       customItem={(scene) => {
         const inner = (
           <>
-            <StatusBadge status={scene.status} />
             <h4 className="text-lg font-semibold text-white">{scene.title}</h4>
             <p className="text-sm text-slate-400">{scene.summary}</p>
           </>

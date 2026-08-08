@@ -45,7 +45,8 @@ export function CharacterListSection({ work }: CharacterListSectionProps) {
   function openDeleteModal(character: Character) {
     openModal(
       <ConfirmDeleteModal
-        workTitle={character.name}
+        title={character.name}
+        message={`Delete character ${character.name}? This action cannot be undone.`}
         onClose={closeModal}
         onConfirm={async () => {
           await handleDeleteCharacter(character);

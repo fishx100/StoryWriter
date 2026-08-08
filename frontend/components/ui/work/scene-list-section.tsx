@@ -41,7 +41,8 @@ export function SceneListSection({ work }: SceneListSectionProps) {
   function openDeleteModal(scene: Scene) {
     openModal(
       <ConfirmDeleteModal
-        workTitle={scene.title}
+        title={scene.title}
+        message={`Delete scene ${scene.title}? This action cannot be undone.`}
         onClose={closeModal}
         onConfirm={async () => {
           await handleDeleteScene(scene);

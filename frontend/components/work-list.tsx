@@ -24,7 +24,8 @@ export function WorkList({ works, onRequestDelete }: WorkListProps) {
   const openDeleteModal = (work: Work) => {
     openModal(
       <ConfirmDeleteModal
-        workTitle={work.title}
+        title={work.title}
+        message={`Delete work ${work.title}? This will remove all scenes and characters.`}
         onClose={closeModal}
         onConfirm={async () => {
           onRequestDelete(work);
