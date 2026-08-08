@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { InputField } from "@/components/forms/input-field";
 import { DropdownField } from "@/components/forms/dropdown-field";
 import { TextareaField } from "@/components/forms/textarea-field";
 import type { CreateWorkInput, Work } from "@/types/work";
 import { fetchJson } from "@/lib/api";
+import useTagStore from "@/stores/tag-store";
 
 type CreateWorkModalProps = {
   onClose: () => void;
@@ -17,7 +18,7 @@ const initialFormState: CreateWorkInput = {
   title: "",
   premise: "",
   genre: "",
-  status: "todo",
+  status_tag_id: "",
 };
 
 export function CreateWorkModal({
@@ -27,6 +28,22 @@ export function CreateWorkModal({
   const [form, setForm] = useState<CreateWorkInput>(initialFormState);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const statusTags = useTagStore.getState().getTagsByCategory("status");
+  const statusOptions = statusTags.map((tag) => ({
+    value: tag.id,
+    label: tag.name,
+  }));
+
+  useEffect(() => {
+    if (statusTags.length > 0) {
+      setForm((current) => ({
+        ...current,
+        // default to first status tag if available
+        status_tag_id: statusTags[0].id,
+      }));
+    }
+  }, []);
 
   async function handleCreateWork(input: CreateWorkInput) {
     setLoading(true);
@@ -102,18 +119,14 @@ export function CreateWorkModal({
 
           <DropdownField
             label="Status"
-            value={form.status}
+            value={form.status_tag_id}
             onChange={(value) =>
               setForm((current) => ({
                 ...current,
-                status: value as CreateWorkInput["status"],
+                status_tag_id: value as CreateWorkInput["status_tag_id"],
               }))
             }
-            options={[
-              { label: "Todo", value: "todo" },
-              { label: "In progress", value: "in_progress" },
-              { label: "Done", value: "done" },
-            ]}
+            options={statusOptions}
           />
         </div>
 

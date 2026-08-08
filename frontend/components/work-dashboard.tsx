@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import useTagStore from "@/stores/tag-store";
 
 import { fetchJson } from "@/lib/api";
 import { DashboardHeader } from "./ui/dashboard/dashboard-header";
@@ -19,6 +20,8 @@ export function WorkDashboard({ mode }: WorkDashboardProps) {
   useEffect(() => {
     let active = true;
 
+    const isTagsLoaded = useTagStore.getState().isLoaded;
+
     async function loadWorks() {
       try {
         const data = await fetchJson<Work[]>("/api/works");
@@ -36,9 +39,21 @@ export function WorkDashboard({ mode }: WorkDashboardProps) {
       }
     }
 
-    /* @todo handle loading state for work list */
-
-    void loadWorks();
+    // Only load works after tags are loaded (ensures tag reference data available)
+    if (isTagsLoaded) {
+      void loadWorks();
+    } else {
+      // subscribe to tagStore changes once
+      const unsubscribe = useTagStore.subscribe(
+      (state) => state.isLoaded,
+      (isLoaded) => {
+        if (isLoaded) {
+          void loadWorks();
+          unsubscribe();
+        }
+      }
+    );
+    }
 
     return () => {
       active = false;

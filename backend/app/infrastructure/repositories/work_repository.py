@@ -25,7 +25,7 @@ class SqlAlchemyWorkRepository(WorkRepository):
             title=work.title,
             premise=work.premise,
             genre=work.genre,
-            status=work.status,
+            status_tag_id=work.status_tag_id,
         )
         self._session.add(model)
         self._session.commit()
@@ -45,8 +45,7 @@ class SqlAlchemyWorkRepository(WorkRepository):
         model = self._session.get(WorkModel, str(work_id))
         if model is None:
             return None
-
-        model.status = status
+        model.status_tag_id = status
         self._session.add(model)
         self._session.commit()
         self._session.refresh(model)
@@ -58,7 +57,7 @@ class SqlAlchemyWorkRepository(WorkRepository):
         title: str | None = None,
         premise: str | None = None,
         genre: str | None = None,
-        status: str | None = None,
+        status_tag_id: str | None = None,
     ) -> Work | None:
         model = self._session.get(WorkModel, str(work_id))
         if model is None:
@@ -70,8 +69,8 @@ class SqlAlchemyWorkRepository(WorkRepository):
             model.premise = premise
         if genre is not None:
             model.genre = genre
-        if status is not None:
-            model.status = status
+        if status_tag_id is not None:
+            model.status_tag_id = status_tag_id
 
         self._session.add(model)
         self._session.commit()
@@ -84,5 +83,5 @@ class SqlAlchemyWorkRepository(WorkRepository):
             title=model.title,
             premise=model.premise,
             genre=model.genre,
-            status=model.status,
+            status_tag_id=model.status_tag_id,
         )

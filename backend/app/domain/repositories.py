@@ -26,6 +26,6 @@ class WorkRepository(Protocol):
         title: str | None = None,
         premise: str | None = None,
         genre: str | None = None,
-        status: str | None = None,
+        status_tag_id: str | None = None,
     ) -> Work | None:
         raise NotImplementedError

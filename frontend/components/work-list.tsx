@@ -46,7 +46,10 @@ export function WorkList({ works, onRequestDelete }: WorkListProps) {
               href={`/works/${work.id}`}
               className="min-w-0 flex-1 rounded-2xl focus:outline-none focus:ring-2 focus:ring-amber-300"
             >
-              <StatusBadge status={work.status} />
+              <StatusBadge
+                status_tag_id={work.status_tag_id}
+                workId={work.id}
+              />
               <h3 className="mt-2 text-xl font-semibold text-slate-100 transition group-hover:text-amber-100">
                 {work.title}
               </h3>

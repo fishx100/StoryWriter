@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 import { ModalProvider } from "@/components/modals/modal-provider";
+import { AppProvider } from "./app-provider";
 
 export const metadata: Metadata = {
   title: "StoryWriter",
@@ -16,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ModalProvider>{children}</ModalProvider>
+        <AppProvider>
+          <ModalProvider>{children}</ModalProvider>
+        </AppProvider>
       </body>
     </html>
   );

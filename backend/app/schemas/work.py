@@ -6,7 +6,7 @@ class WorkBase(BaseModel):
     title: str
     premise: str = ''
     genre: str = ''
-    status: str = 'todo'
+    status_tag_id: str | None = None
 
 
 class WorkCreate(WorkBase):
@@ -21,4 +21,4 @@ class WorkUpdate(BaseModel):
     title: Optional[str] = None
     premise: Optional[str] = None
     genre: Optional[str] = None
-    status: Optional[str] = None
+    status_tag_id: Optional[str] = None

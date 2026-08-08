@@ -35,7 +35,7 @@ export function WorkOverviewSection({ work }: WorkOverviewSectionProps) {
           <p className="text-xs uppercase tracking-[0.25em] text-slate-400">
             Status
           </p>
-          <StatusBadge status={work.status} />
+          <StatusBadge status_tag_id={work.status_tag_id} workId={work.id} />
         </div>
       </div>
     </SectionPanel>

@@ -8,4 +8,5 @@ class Work:
     title: str = ''
     premise: str = ''
     genre: str = ''
-    status: str = 'drafting'
+    # reference to StatusTag id
+    status_tag_id: str | None = None

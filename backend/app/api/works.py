@@ -18,7 +18,7 @@ def _to_work_read(work) -> WorkRead:
 		title=work.title,
 		premise=work.premise,
 		genre=work.genre,
-		status=work.status,
+		status_tag_id=work.status_tag_id,
 	)
 
 
@@ -47,7 +47,7 @@ def create_work(
 		title=payload.title.strip(),
 		premise=payload.premise.strip(),
 		genre=payload.genre.strip(),
-		status=payload.status,
+		status_tag_id=payload.status_tag_id,
 	)
 	return _to_work_read(work)
 
@@ -62,12 +62,13 @@ def update_work(
 	if work is None:
 		raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Work not found')
 
+	status_tag_id = payload.status_tag_id
 	updated = work_service.update_work(
 		work_id,
 		title=payload.title.strip() if payload.title is not None else None,
 		premise=payload.premise.strip() if payload.premise is not None else None,
 		genre=payload.genre.strip() if payload.genre is not None else None,
-		status=payload.status,
+		status_tag_id=status_tag_id,
 	)
 	if updated is None:
 		raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Work not found')

@@ -1,31 +1,86 @@
+"use client";
+
+import { useState, useRef, useLayoutEffect, useEffect } from "react";
+import StatusPicker from "./status-picker";
+import useTagStore from "@/stores/tag-store";
+
 type StatusBadgeProps = {
-  status: string;
+  status_tag_id: string;
+  workId?: string;
 };
 
-const STATUS_MAP: Record<
-  "todo" | "in_progress" | "done",
-  { label: string; className: string }
-> = {
-  todo: {
-    label: "Todo",
-    className: "border-sky-300/40 bg-sky-400/10 text-sky-100",
-  },
-  in_progress: {
-    label: "In progress",
-    className: "border-amber-300/40 bg-amber-400/10 text-amber-100",
-  },
-  done: {
-    label: "Done",
-    className: "border-emerald-300/40 bg-emerald-400/10 text-emerald-200",
-  },
-};
+export function StatusBadge({ status_tag_id, workId }: StatusBadgeProps) {
+  const [currentTagId, setCurrentTagId] = useState(status_tag_id);
+  const [currentLabel, setCurrentLabel] = useState("Todo");
+  const [currentColor, setCurrentColor] = useState("#888888");
 
-export function StatusBadge({ status }: StatusBadgeProps) {
-  const key = (
-    status in STATUS_MAP ? status : "todo"
-  ) as keyof typeof STATUS_MAP;
-  const { label, className } = STATUS_MAP[key];
-  return <p className={`sw-tag-label ${className}`}>{label}</p>;
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const [popoverPositionStyle, setPopoverPositionStyle] = useState<
+    React.CSSProperties | undefined
+  >();
+
+  const getTag = useTagStore((s) => s.getTag);
+
+  useEffect(() => {
+    const tag = getTag(currentTagId);
+    if (tag) {
+      setCurrentLabel(tag.name);
+      setCurrentColor(tag.color || "#888888");
+    }
+    console.log("StatusBadge: currentTagId changed", currentTagId, tag);
+  }, [currentTagId]);
+
+  useLayoutEffect(() => {
+    if (!isPickerOpen || !buttonRef.current) return;
+    const rect = buttonRef.current.getBoundingClientRect();
+    setPopoverPositionStyle({
+      position: "absolute",
+      top: rect.bottom + window.scrollY,
+      left: rect.left + window.scrollX,
+      zIndex: 9999,
+    });
+  }, [isPickerOpen]);
+
+  async function handleOnChange(tagId: string) {
+    setCurrentTagId(tagId);
+    const tag = getTag?.(tagId);
+    if (tag?.name) setCurrentLabel(tag.name);
+    if (tag?.color) setCurrentColor(tag.color);
+  }
+
+  return (
+    <div className="relative inline-block">
+      <button
+        ref={buttonRef}
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsPickerOpen(true);
+        }}
+        className={`sw-tag-label`}
+        style={{
+          borderColor: currentColor,
+        }}
+        aria-expanded={isPickerOpen}
+        aria-haspopup="dialog"
+      >
+        {currentLabel}
+      </button>
+
+      {isPickerOpen && (
+        <StatusPicker
+          positionStyle={popoverPositionStyle}
+          onChange={handleOnChange}
+          currentStatusTagId={currentTagId}
+          open={isPickerOpen}
+          onClose={() => setIsPickerOpen(false)}
+          workId={workId}
+        />
+      )}
+    </div>
+  );
 }
 
 export default StatusBadge;
