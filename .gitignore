@@ -50,3 +50,12 @@ pnpm-debug.log*
 
 backend/storywriter.db
 node_modules/tsconfig.tsbuildinfo
+**/node_modules/
+.next/
+.env
+.env.local
+.venv/
+dist/
+build/
+*.tsbuildinfo
+.DS_Store
