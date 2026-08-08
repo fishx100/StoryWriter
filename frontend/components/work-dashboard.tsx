@@ -45,14 +45,14 @@ export function WorkDashboard({ mode }: WorkDashboardProps) {
     } else {
       // subscribe to tagStore changes once
       const unsubscribe = useTagStore.subscribe(
-      (state) => state.isLoaded,
-      (isLoaded) => {
-        if (isLoaded) {
-          void loadWorks();
-          unsubscribe();
-        }
-      }
-    );
+        (state) => state.isLoaded,
+        (isLoaded) => {
+          if (isLoaded) {
+            void loadWorks();
+            unsubscribe();
+          }
+        },
+      );
     }
 
     return () => {
