@@ -11,7 +11,14 @@ export default function LogoutButton() {
   async function handleLogout() {
     setLoading(true);
     try {
-      await signOut();
+      // Call server-side logout to ensure httpOnly auth cookies are cleared.
+      await fetch("/api/auth/logout", { method: "POST" });
+      // Also call client signOut to notify client SDK and clear client-side state.
+      try {
+        await signOut();
+      } catch (e) {
+        // ignore client sign-out errors
+      }
       router.push("/login");
     } catch (err) {
       // ignore for now
