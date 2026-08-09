@@ -52,36 +52,60 @@ export function createServerSupabase(
   // provided, we warn; when `response` is present we call response.cookies.set
   // for each cookie entry returned by @supabase/ssr storage logic.
   const setAll = async (cookiesToSet: Array<any>) => {
-    if (!response) {
-      // When no response is provided we cannot set cookies server-side.
-      // This can happen in some middleware contexts; log a warning.
-      // @supabase/ssr will tolerate a no-op setAll in some scenarios.
-      // eslint-disable-next-line no-console
-      console.warn(
-        "@supabase/ssr: setAll called without a NextResponse; cookies will not be set.",
-      );
+    // If a NextResponse was provided, prefer writing cookies to it so the
+    // response returned to the browser includes Set-Cookie headers.
+    if (response) {
+      for (let i = 0; i < cookiesToSet.length; i += 1) {
+        const { name, value, options } = cookiesToSet[i];
+        const cookieOpts: any = {};
+        if (options) {
+          if (options.maxAge !== undefined) cookieOpts.maxAge = options.maxAge;
+          if (options.httpOnly !== undefined) cookieOpts.httpOnly = options.httpOnly;
+          if (options.sameSite !== undefined) cookieOpts.sameSite = options.sameSite;
+          if (options.secure !== undefined) cookieOpts.secure = options.secure;
+          if (options.path !== undefined) cookieOpts.path = options.path;
+          if (options.domain !== undefined) cookieOpts.domain = options.domain;
+          if (options.expires !== undefined) cookieOpts.expires = options.expires;
+        }
+
+        // @ts-ignore - NextResponse.cookies API
+        response.cookies.set({ name, value: value ?? "", ...cookieOpts });
+      }
       return;
     }
 
-    for (let i = 0; i < cookiesToSet.length; i += 1) {
-      const { name, value, options } = cookiesToSet[i];
-      // Map options to NextResponse.cookies.set signature
-      const cookieOpts: any = {};
-      if (options) {
-        if (options.maxAge !== undefined) cookieOpts.maxAge = options.maxAge;
-        if (options.httpOnly !== undefined)
-          cookieOpts.httpOnly = options.httpOnly;
-        if (options.sameSite !== undefined)
-          cookieOpts.sameSite = options.sameSite;
-        if (options.secure !== undefined) cookieOpts.secure = options.secure;
-        if (options.path !== undefined) cookieOpts.path = options.path;
-        if (options.domain !== undefined) cookieOpts.domain = options.domain;
-        if (options.expires !== undefined) cookieOpts.expires = options.expires;
+    // If no NextResponse was provided (typical in server components), try
+    // to use Next.js `cookies()` setter which writes Set-Cookie headers for
+    // the current server component render. This enables session refresh
+    // flows and cookie updates when server components access auth.
+    try {
+      const nc = await (nextCookies() as any);
+      if (nc && typeof nc.set === "function") {
+        for (let i = 0; i < cookiesToSet.length; i += 1) {
+          const { name, value, options } = cookiesToSet[i];
+          const cookieObj: any = { name, value: value ?? "" };
+          if (options) {
+            if (options.httpOnly !== undefined) cookieObj.httpOnly = options.httpOnly;
+            if (options.sameSite !== undefined) cookieObj.sameSite = options.sameSite;
+            if (options.path !== undefined) cookieObj.path = options.path;
+            if (options.domain !== undefined) cookieObj.domain = options.domain;
+            if (options.secure !== undefined) cookieObj.secure = options.secure;
+            if (options.expires !== undefined) cookieObj.expires = options.expires;
+            if (options.maxAge !== undefined) cookieObj.maxAge = options.maxAge;
+          }
+          nc.set(cookieObj);
+        }
+        return;
       }
-
-      // @ts-ignore - NextResponse.cookies API
-      response.cookies.set({ name, value: value ?? "", ...cookieOpts });
+    } catch (e) {
+      // ignore and fallthrough to warning
     }
+
+    // Fallback: cannot set cookies in this environment.
+    // eslint-disable-next-line no-console
+    console.warn(
+      "@supabase/ssr: setAll called without a writable response; cookies may not be set.",
+    );
   };
 
   // Provide the cookies abstraction expected by @supabase/ssr
