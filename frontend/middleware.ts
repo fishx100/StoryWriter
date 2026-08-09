@@ -13,19 +13,27 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    const supabase = createServerSupabase(request as unknown as Request);
+    // Prepare a response so `createServerSupabase` can write Set-Cookie
+    // headers if the SDK needs to refresh the session.
+    const res = NextResponse.next();
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const { data, error } = await supabase.auth.getSession();
+    const supabase = createServerSupabase(request as unknown as Request, res);
 
-    if (error || !data?.session) {
+    // Use getUser() which verifies the session with the Supabase Auth server.
+    // This avoids trusting the raw user object from storage/cookies.
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !userData?.user) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);
     }
 
-    return NextResponse.next();
+    return res;
   } catch (err) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
