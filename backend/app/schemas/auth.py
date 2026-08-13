@@ -8,3 +8,9 @@ class LoginRequest(BaseModel):
 
 class RegisterRequest(LoginRequest):
     pass
+
+
+class AuthenticatedUser(BaseModel):
+    supabase_user_id: str
+    email: EmailStr | None = None
+

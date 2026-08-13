@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import Optional
 
 
 class Settings(BaseSettings):
@@ -7,6 +8,9 @@ class Settings(BaseSettings):
     database_url: str = 'sqlite:///./storywriter.db'
     secret_key: str = 'change-me'
     frontend_origin: str = 'http://localhost:3000'
+
+    supabase_url: Optional[str] = None
+    supabase_jwks_url: Optional[str] = None
 
 
 settings = Settings()
