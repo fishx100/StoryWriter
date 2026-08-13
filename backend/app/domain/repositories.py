@@ -29,3 +29,21 @@ class WorkRepository(Protocol):
         status_tag_id: str | None = None,
     ) -> Work | None:
         raise NotImplementedError
+
+
+
+from app.domain.entities import User
+
+
+class UserRepository(Protocol):
+    def get_by_id(self, user_id: UUID) -> User | None:
+        raise NotImplementedError
+
+    def get_by_supabase_user_id(self, supabase_user_id: str) -> User | None:
+        raise NotImplementedError
+
+    def create(self, user: User) -> User:
+        raise NotImplementedError
+
+    def update(self, user: User) -> User:
+        raise NotImplementedError

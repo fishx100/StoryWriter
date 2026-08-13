@@ -11,6 +11,7 @@ class RegisterRequest(LoginRequest):
 
 
 class AuthenticatedUser(BaseModel):
+    id: str | None = None
     supabase_user_id: str
     email: EmailStr | None = None
 
