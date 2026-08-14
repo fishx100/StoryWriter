@@ -10,18 +10,31 @@ from app.infrastructure.models import WorkModel
 class SqlAlchemyWorkRepository(WorkRepository):
     def __init__(self, session: Session) -> None:
         self._session = session
+        self._user_id: str | None = None
+
+    def set_user(self, user_id: str) -> None:
+        """Associate this repository instance with a local user id for scoping."""
+        self._user_id = user_id
 
     def get_by_id(self, work_id: UUID) -> Work | None:
-        model = self._session.get(WorkModel, str(work_id))
+        # enforce ownership when a user is associated with this repository
+        if self._user_id is not None:
+            model = self._session.query(WorkModel).filter(WorkModel.id == str(work_id), WorkModel.user_id == self._user_id).one_or_none()
+        else:
+            model = self._session.get(WorkModel, str(work_id))
         return self._to_domain(model) if model is not None else None
 
     def list_all(self) -> list[Work]:
-        models = self._session.query(WorkModel).order_by(WorkModel.created_at.desc()).all()
+        q = self._session.query(WorkModel).order_by(WorkModel.created_at.desc())
+        if self._user_id is not None:
+            q = q.filter(WorkModel.user_id == self._user_id)
+        models = q.all()
         return [self._to_domain(model) for model in models]
 
     def create(self, work: Work) -> Work:
         model = WorkModel(
             id=str(work.id),
+            user_id=self._user_id,
             title=work.title,
             premise=work.premise,
             genre=work.genre,
@@ -33,7 +46,11 @@ class SqlAlchemyWorkRepository(WorkRepository):
         return self._to_domain(model)
 
     def delete(self, work_id: UUID) -> bool:
-        model = self._session.get(WorkModel, str(work_id))
+        # ensure user can only delete their own work when scoped
+        if self._user_id is not None:
+            model = self._session.query(WorkModel).filter(WorkModel.id == str(work_id), WorkModel.user_id == self._user_id).one_or_none()
+        else:
+            model = self._session.get(WorkModel, str(work_id))
         if model is None:
             return False
 
@@ -42,7 +59,10 @@ class SqlAlchemyWorkRepository(WorkRepository):
         return True
 
     def update_status(self, work_id: UUID, status: str) -> Work | None:
-        model = self._session.get(WorkModel, str(work_id))
+        if self._user_id is not None:
+            model = self._session.query(WorkModel).filter(WorkModel.id == str(work_id), WorkModel.user_id == self._user_id).one_or_none()
+        else:
+            model = self._session.get(WorkModel, str(work_id))
         if model is None:
             return None
         model.status_tag_id = status
@@ -59,7 +79,10 @@ class SqlAlchemyWorkRepository(WorkRepository):
         genre: str | None = None,
         status_tag_id: str | None = None,
     ) -> Work | None:
-        model = self._session.get(WorkModel, str(work_id))
+        if self._user_id is not None:
+            model = self._session.query(WorkModel).filter(WorkModel.id == str(work_id), WorkModel.user_id == self._user_id).one_or_none()
+        else:
+            model = self._session.get(WorkModel, str(work_id))
         if model is None:
             return None
 

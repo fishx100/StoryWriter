@@ -23,12 +23,6 @@ def get_db() -> Generator[Session, None, None]:
         yield session
     finally:
         session.close()
-
-
-def get_work_service(db: Session = Depends(get_db)) -> WorkService:
-    return WorkService(SqlAlchemyWorkRepository(db))
-
-
 def get_status_tag_service(db: Session = Depends(get_db)) -> StatusTagService:
     return StatusTagService(SqlAlchemyStatusTagRepository(db))
 
@@ -44,7 +38,15 @@ def get_current_user(
         raise HTTPException(status_code=401, detail='Unauthorized', headers={'WWW-Authenticate': 'Bearer'})
 
     token = credentials.credentials
-    claims = verify_supabase_jwt(token)
+    try:
+        claims = verify_supabase_jwt(token)
+    except HTTPException as e:
+        # Safe server-side debug: print exception detail (no token)
+        print(f"get_current_user: token verification failed: {e.detail}")
+        raise
+    except Exception as e:
+        print(f"get_current_user: unexpected verification error: {type(e).__name__}: {e}")
+        raise HTTPException(status_code=401, detail='Invalid token')
     sub = claims.get('sub')
     email = claims.get('email')
     email_verified = claims.get('email_verified')
@@ -65,3 +67,18 @@ def get_current_user(
     new_user = DomainUser(supabase_user_id=sub, email=email if (email and (email_verified is None or bool(email_verified))) else None)
     created = repo.create(new_user)
     return AuthenticatedUser(id=str(created.id), supabase_user_id=created.supabase_user_id, email=created.email)
+
+
+def get_work_service(
+    db: Session = Depends(get_db),
+    current_user: AuthenticatedUser = Depends(get_current_user),
+) -> WorkService:
+    """Return a WorkService whose repository is scoped to the authenticated user when available.
+
+    `current_user` is provided by the dependency system when routes include `get_current_user`.
+    If no current_user is available, repository will not be scoped.
+    """
+    repo = SqlAlchemyWorkRepository(db)
+    if current_user is not None and getattr(current_user, 'id', None):
+        repo.set_user(current_user.id)
+    return WorkService(repo)

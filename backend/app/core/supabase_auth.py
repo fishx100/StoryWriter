@@ -87,11 +87,16 @@ def verify_supabase_jwt(token: str) -> Dict[str, Any]:
         raise HTTPException(status_code=401, detail="Unknown signing key")
 
     try:
+        # Determine algorithm from token header if possible
+        alg = unverified_header.get('alg')
+        if not alg:
+            raise HTTPException(status_code=401, detail="Missing alg in token header")
+
         # python-jose accepts the jwk dict directly as key
         claims = jwt.decode(
             token,
             jwk,
-            algorithms=['RS256'],
+            algorithms=[alg],
             issuer=issuer,
             audience=audience,
         )

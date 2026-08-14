@@ -24,6 +24,9 @@ class WorkModel(Base):
     __tablename__ = 'works'
 
     id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid4()))
+    # owner: reference to local users.id (UUID string)
+    # nullable for now until migration populates and enforces NOT NULL
+    user_id: Mapped[str] = mapped_column(String(36), nullable=True, index=True)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     premise: Mapped[str] = mapped_column(String(1000), nullable=False, default='')
     genre: Mapped[str] = mapped_column(String(100), nullable=False, default='')
