@@ -15,6 +15,10 @@ It is designed for long-form fiction workflows: managing works, scenes, characte
 - Backend: FastAPI, Python, SQLAlchemy, Pydantic
 - Database: SQLite by default for local development
 
+- Frontend: Next.js 15, React, TypeScript, Tailwind CSS, Zustand (state management), Supabase (auth & realtime)
+- Backend: FastAPI, Python, SQLAlchemy, Pydantic
+- Database: SQLite by default for local development
+
 ## Current Features
 
 - Works: create, read, update, and delete works via the backend API and frontend workspace screens.
