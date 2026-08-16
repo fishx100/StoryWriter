@@ -4,6 +4,11 @@ StoryWriter is a browser-based story planning and drafting app built as a monore
 
 It is designed for long-form fiction workflows: managing works, scenes, characters, and related story structure in one place.
 
+## Screenshot
+
+![Dashboard screenshot](Images/dashboard-screenshot.png)
+
+
 ## Stack
 
 - Frontend: Next.js 15, React, TypeScript, Tailwind CSS
@@ -12,11 +17,14 @@ It is designed for long-form fiction workflows: managing works, scenes, characte
 
 ## Current Features
 
-- Work dashboard with create, edit, and delete flows
-- Work detail page with overview and scene management
-- Scene listing, reordering, editing, and deletion
-- Character page scaffold and backend support for story entities
-- Shared API helper on the frontend and repository/service layering on the backend
+- Works: create, read, update, and delete works via the backend API and frontend workspace screens.
+- Scenes: per-work scene listing, create, retrieve, update, delete, and reordering (backend endpoints and frontend screens).
+- Characters: per-work character CRUD and reordering endpoints, with matching frontend components.
+- Status tags: tag listing, creation, update, and deletion with per-user default status tags (Todo / In Progress / Done).
+- Authentication: `GET /api/auth/me` plus frontend sign-in flows (Supabase-backed token handling and session helpers).
+- Health & OpenAPI: simple `/api/health` health check and an OpenAPI JSON snapshot in `backend/tests/openapi.json`.
+- Tests: integration/unit tests around auth and API routes under `backend/tests/`.
+- Architecture: shared frontend API helper, repository/service layering on the backend, and a structure that keeps domain logic separate from persistence.
 
 ## Repository Layout
 
