@@ -19,6 +19,7 @@ function formatError(err: unknown): string {
 export type Tag = {
   id: string;
   category: string;
+  user_id?: string | null;
   name: string;
   color: string;
   order: number;

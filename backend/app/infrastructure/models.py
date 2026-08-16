@@ -12,6 +12,9 @@ class StatusTagModel(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     name: Mapped[str] = mapped_column(String(100), nullable=False)
+    # owner: required. Tags without an owner are considered legacy/invalid and are ignored by the application.
+    # NOTE: the DB column may be nullable for migration reasons, but application code treats `user_id` as required.
+    user_id: Mapped[str] = mapped_column(String(36), nullable=True, index=True)
     color: Mapped[str] = mapped_column(String(20), nullable=False, default='#888888')
     type: Mapped[str] = mapped_column(String(50), nullable=False, default='status')
     order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
