@@ -80,7 +80,7 @@ export default function WorkPage({ params }: WorkPageProps) {
 
         {selectedItem === "overview" ? (
           <div className="flex-col gap-6 flex-1">
-            <WorkOverviewSection work={work} />
+            <WorkOverviewSection work={work} setWork={setWork}/>
           </div>
         ) : null}
 

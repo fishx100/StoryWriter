@@ -7,12 +7,14 @@ type TextFieldContainerProps = {
   fieldName: string;
   fieldValue: string;
   editable?: boolean;
+  onChange?: (newValue: string) => void;
 };
 
 export function TextFieldContainer({
   fieldName,
   fieldValue,
   editable = false,
+  onChange,
 }: TextFieldContainerProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(fieldValue);
@@ -23,12 +25,17 @@ export function TextFieldContainer({
     setIsEditing(true);
   }
 
-  function handleSave(editEl: HTMLElement | null) {
+  function endEdit(editEl: HTMLElement | null) {
     initialRef.current = value;
     setIsEditing(false);
     editEl?.blur?.();
   }
 
+  function handleChange(newValue: string) {
+    setValue(newValue);
+    onChange?.(newValue);
+  }
+  
   const isMultiline = value.includes("\n");
 
   return (
@@ -43,19 +50,19 @@ export function TextFieldContainer({
       ) : isMultiline ? (
         <textarea
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => handleChange(e.target.value)}
           rows={4}
           className="sw-field-value-editable"
-          onBlur={(e) => handleSave(e.currentTarget)}
+          onBlur={(e) => endEdit(e.currentTarget)}
           autoFocus
         />
       ) : (
         <input
           type="text"
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => handleChange(e.target.value)}
           className="sw-field-value-editable"
-          onBlur={(e) => handleSave(e.currentTarget)}
+          onBlur={(e) => endEdit(e.currentTarget)}
           autoFocus
         />
       )}
