@@ -1,6 +1,6 @@
 "use client";
 
-import { FieldContainer } from "@/components/layout/field-container";
+import { TextFieldContainer } from "@/components/layout/text-field-container";
 import { SectionPanel } from "@/components/layout/section-panel";
 import { SignIn } from "./sign-in";
 
@@ -23,9 +23,12 @@ export function DashboardHeader({ totalWorks }: DashboardHeaderProps) {
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
-        <FieldContainer fieldName="Works" fieldValue={totalWorks.toString()} />
-        <FieldContainer fieldName="PLACEHOLDER" fieldValue="PLACEHOLDER" />
-        <FieldContainer fieldName="PLACEHOLDER" fieldValue="PLACEHOLDER" />
+        <TextFieldContainer
+          fieldName="Works"
+          fieldValue={totalWorks.toString()}
+        />
+        <TextFieldContainer fieldName="PLACEHOLDER" fieldValue="PLACEHOLDER" />
+        <TextFieldContainer fieldName="PLACEHOLDER" fieldValue="PLACEHOLDER" />
       </div>
     </SectionPanel>
   );

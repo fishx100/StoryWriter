@@ -1,15 +1,66 @@
 "use client";
 
+import React, { useEffect, useRef, useState } from "react";
+
 type FieldContainerProps = {
   fieldName: string;
-  fieldValue: string;
+  children: React.ReactNode;
+  showHover?: boolean;
+  selectable?: boolean;
+  onSelect?: () => void;
 };
 
-export function FieldContainer({ fieldName, fieldValue }: FieldContainerProps) {
+export function FieldContainer({
+  fieldName,
+  children,
+  selectable = false,
+  showHover = false,
+  onSelect,
+}: FieldContainerProps) {
+  const [isSelected, setIsSelected] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!selectable) return;
+
+    function handleDocumentClick(event: MouseEvent) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsSelected(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleDocumentClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleDocumentClick);
+    };
+  }, [selectable]);
+
+  function handleContainerClick() {
+    if (!selectable) return;
+    setIsSelected(true);
+    onSelect?.();
+  }
+
+  const containerClass = [
+    "sw-field-container",
+    showHover && !isSelected ? "sw-border-hover" : "",
+    isSelected ? "sw-border-focus" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <div className="sw-field-container">
+    <div
+      ref={containerRef}
+      className={containerClass}
+      onClick={handleContainerClick}
+    >
       <p className="sw-field-title">{fieldName}</p>
-      <p className="sw-field-value">{fieldValue}</p>
+      {children}
     </div>
   );
 }
