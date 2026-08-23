@@ -25,6 +25,10 @@ body {
     @apply rounded-[2rem] border border-slate-200/10 bg-slate-950/80 p-5 shadow-2xl shadow-black/20 sm:p-6;
   }
 
+  .sw-section-layout {
+    @apply flex flex-col gap-3 border-b border-slate-200/10 pb-5;
+  }
+
   .sw-field-container {
     @apply rounded-3xl border border-slate-200/10 bg-slate-900/70 p-4;
   }
@@ -72,7 +76,7 @@ body {
   .sw-section-back-button {
     @apply text-sm text-amber-400 hover:underline;
   }
-  
+
   /* Borders */
   .sw-border-focus {
     @apply outline outline-2 outline-amber-400/60;
@@ -101,6 +105,18 @@ body {
 
   .sw-text-warning {
     @apply text-sm text-rose-300;
+  }
+
+  .sw-inline-message-info {
+    @apply sw-text-plain-small text-slate-400;
+  }
+
+  .sw-inline-message-warning {
+    @apply sw-text-plain-small text-amber-300;
+  }
+
+  .sw-inline-message-error {
+    @apply sw-text-plain-small text-rose-300;
   }
 
   /* Modal */

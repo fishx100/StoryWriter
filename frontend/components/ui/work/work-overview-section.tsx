@@ -7,6 +7,7 @@ import StatusBadge from "./status-badge";
 import { useState, useEffect, useCallback } from "react";
 import { fetchJson } from "@/lib/api";
 import { useAutoSave } from "@/hooks/useAutoSave";
+import { InlineMessageProps } from "../common/inline-message";
 
 type WorkOverviewSectionProps = {
   work: Work;
@@ -20,15 +21,31 @@ export function WorkOverviewSection({
   const [title, setTitle] = useState(work.title);
   const [premise, setPremise] = useState(work.premise || "");
   const [genre, setGenre] = useState(work.genre || "");
+  const [inlineMessage, setInlineMessage] = useState<
+    InlineMessageProps | undefined
+  >(undefined);
 
   const updateWork = useCallback(async (updatedWork: Work) => {
+    // @todo: temporary fix to prevent autosave when entering the page
+    if (
+      updatedWork.title === work.title &&
+      updatedWork.premise === work.premise &&
+      updatedWork.genre === work.genre
+    ) {
+      return; // No changes to save
+    }
+
     try {
+      setInlineMessage({ type: "info", message: "Saving..." });
       await fetchJson<Work>(`/api/works/${work.id}`, {
         method: "PATCH",
         body: JSON.stringify(updatedWork),
       });
+
+      setInlineMessage({ type: "info", message: "Saved" });
     } catch (error) {
-      // @TODO: Handle error (e.g., show a notification)
+      setInlineMessage({ type: "error", message: "Failed to save." });
+      // @todo: retry
     }
   }, []);
 
@@ -50,8 +67,8 @@ export function WorkOverviewSection({
   }, [title, premise, genre]);
 
   return (
-    <SectionPanel title="Overview">
-      <div className="flex flex-col gap-3 border-b border-slate-200/10 pb-5">
+    <SectionPanel title="Overview" inlineMessage={inlineMessage}>
+      <div className="sw-section-layout">
         <StatusBadge status_tag_id={work.status_tag_id} workId={work.id} />
         <TextFieldContainer
           editable
