@@ -13,7 +13,10 @@ type WorkOverviewSectionProps = {
   setWork?: (work: Work) => void;
 };
 
-export function WorkOverviewSection({ work, setWork }: WorkOverviewSectionProps) {
+export function WorkOverviewSection({
+  work,
+  setWork,
+}: WorkOverviewSectionProps) {
   const [title, setTitle] = useState(work.title);
   const [premise, setPremise] = useState(work.premise || "");
   const [genre, setGenre] = useState(work.genre || "");

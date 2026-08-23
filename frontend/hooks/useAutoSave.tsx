@@ -4,7 +4,7 @@ export function useAutoSave<T>(
   key: string,
   value: T,
   saveToServer: (value: T) => Promise<void>,
-  delay = 1500
+  delay = 1500,
 ) {
   useEffect(() => {
     // Debounce server save

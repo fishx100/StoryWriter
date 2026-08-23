@@ -3,19 +3,17 @@
 import React, { useRef, useState, useEffect } from "react";
 import { FieldContainer } from "./field-container";
 
-type TextFieldContainerProps = {
+type EditorFieldContainerProps = {
   fieldName: string;
   fieldValue: string;
-  editable?: boolean;
   onChange?: (newValue: string) => void;
 };
 
-export function TextFieldContainer({
+export function EditorFieldContainer({
   fieldName,
   fieldValue,
-  editable = false,
   onChange,
-}: TextFieldContainerProps) {
+}: EditorFieldContainerProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(fieldValue);
   const initialRef = useRef(fieldValue);
@@ -28,7 +26,6 @@ export function TextFieldContainer({
   }, [fieldValue, isEditing]);
 
   function handleContainerClick() {
-    if (!editable) return;
     setIsEditing(true);
   }
 
@@ -43,31 +40,20 @@ export function TextFieldContainer({
     onChange?.(newValue);
   }
 
-  const isMultiline = value.includes("\n");
-
   return (
     <FieldContainer
       fieldName={fieldName}
-      selectable={editable}
-      showHover={editable}
+      selectable
+      showHover
       onSelect={handleContainerClick}
     >
-      {!editable || !isEditing ? (
-        <p className="sw-field-value">{value}</p>
-      ) : isMultiline ? (
+      {!isEditing ? (
+        <p className="sw-editor-field-value">{value}</p>
+      ) : (
         <textarea
           value={value}
           onChange={(e) => handleChange(e.target.value)}
-          rows={4}
-          className="sw-field-value-editable"
-          onBlur={(e) => endEdit(e.currentTarget)}
-          autoFocus
-        />
-      ) : (
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => handleChange(e.target.value)}
+          rows={10}
           className="sw-field-value-editable"
           onBlur={(e) => endEdit(e.currentTarget)}
           autoFocus

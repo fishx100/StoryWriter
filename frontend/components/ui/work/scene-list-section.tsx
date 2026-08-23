@@ -8,6 +8,7 @@ import { fetchJson } from "@/lib/api";
 import { useModal } from "@/components/modals/modal-provider";
 import { ConfirmDeleteModal } from "@/components/modals/confirm-delete-modal";
 import { SceneList } from "@/components/scene-list";
+import { SceneSection } from "@/components/ui/work/scene-section";
 import { CreateSceneModal } from "@/components/create-scene-modal";
 
 type SceneListSectionProps = {
@@ -105,6 +106,33 @@ export function SceneListSection({ work }: SceneListSectionProps) {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (selectedSceneId) {
+    const scene = scenes.find((s) => s.id === selectedSceneId);
+
+    if (!scene) {
+      return (
+        <SectionPanel>
+          <div className="rounded-[2rem] border border-dashed border-slate-200/10 bg-slate-900/50 p-8 text-slate-300">
+            Scene not found.
+          </div>
+        </SectionPanel>
+      );
+    }
+
+    return (
+      <SceneSection
+        sceneId={selectedSceneId}
+        workId={work.id}
+        onBack={(updated?: Scene) => {
+          if (updated) {
+            setScenes((current) => current.map((s) => (s.id === updated.id ? updated : s)));
+          }
+          setSelectedSceneId(null);
+        }}
+      />
+    );
   }
 
   return (
