@@ -4,7 +4,7 @@ import { TextFieldContainer } from "@/components/layout/text-field-container";
 import { SectionPanel } from "@/components/layout/section-panel";
 import { Work } from "@/types/work";
 import StatusBadge from "./status-badge";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { fetchJson } from "@/lib/api";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { InlineMessageProps } from "../common/inline-message";
@@ -21,26 +21,26 @@ export function WorkOverviewSection({
   const [title, setTitle] = useState(work.title);
   const [premise, setPremise] = useState(work.premise || "");
   const [genre, setGenre] = useState(work.genre || "");
-  const [inlineMessage, setInlineMessage] = useState<
-    InlineMessageProps | undefined
-  >(undefined);
+  const [inlineMessage, setInlineMessage] = useState<InlineMessageProps | undefined>(undefined);
+  const previousSavedWorkRef = useRef<Work | null>(work);
 
   const updateWork = useCallback(async (updatedWork: Work) => {
     // @todo: temporary fix to prevent autosave when entering the page
-    if (
-      updatedWork.title === work.title &&
-      updatedWork.premise === work.premise &&
-      updatedWork.genre === work.genre
-    ) {
-      return; // No changes to save
-    }
+    const prev = previousSavedWorkRef.current;
+    if (prev &&
+      updatedWork.title === prev.title &&
+      updatedWork.premise === prev.premise &&
+      updatedWork.genre === prev.genre
+    ) return;
 
     try {
       setInlineMessage({ type: "info", message: "Saving..." });
-      await fetchJson<Work>(`/api/works/${work.id}`, {
+      await fetchJson<Work>(`/api/works/${updatedWork.id}`, {
         method: "PATCH",
         body: JSON.stringify(updatedWork),
       });
+
+      previousSavedWorkRef.current = updatedWork;
 
       setInlineMessage({ type: "info", message: "Saved" });
     } catch (error) {

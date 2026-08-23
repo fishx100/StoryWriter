@@ -6,7 +6,8 @@ import { TextFieldContainer } from "@/components/layout/text-field-container";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import { fetchJson } from "@/lib/api";
 import { Scene } from "@/types/scene";
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect, useRef } from "react";
+import { InlineMessageProps } from "../common/inline-message";
 
 type SceneProps = {
   workId: string;
@@ -14,28 +15,33 @@ type SceneProps = {
   onBack?: (updatedScene?: Scene) => void;
 };
 
-export function SceneSection({ 
-  workId, 
-  sceneId, 
-  onBack }: SceneProps) {
+export function SceneSection({ workId, sceneId, onBack }: SceneProps) {
   const [scene, setScene] = useState<Scene | null>(null);
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
+  const [inlineMessage, setInlineMessage] = useState<InlineMessageProps | undefined>(undefined);
+  const previousSavedSceneRef = useRef<Scene | null>(null);
 
   useEffect(() => {
     const fetchScene = async () => {
       try {
-        const fetched = await fetchJson<Scene>(`/api/works/${workId}/scenes/${sceneId}`);
+        setInlineMessage({ type: "info", message: "Loading..." });
 
-        setScene(fetched);
+        const fetched = await fetchJson<Scene>(
+          `/api/works/${workId}/scenes/${sceneId}`,
+        );
+
+        setInlineMessage(undefined);
+
         setTitle(fetched.title ?? "");
         setSummary(fetched.summary ?? "");
         setContent(fetched.content ?? "");
+        setScene(fetched);
 
+        previousSavedSceneRef.current = fetched;
       } catch (error) {
-        // @TODO: handle error (e.g., show notification)
-        console.error("Failed to fetch scene:", error);
+        setInlineMessage({ type: "error", message: "Failed to load scene." });
       }
     };
     fetchScene();
@@ -46,23 +52,32 @@ export function SceneSection({
   }, [title, summary, content]);
 
   const updateScene = useCallback(async (updatedScene: Scene | null) => {
+    if (!updatedScene)
+      return;
+
+    // @todo: temporary fix to prevent autosave when entering the page
+    const prev = previousSavedSceneRef.current;
+    if (prev && prev.title === updatedScene.title && prev.summary === updatedScene.summary && prev.content === updatedScene.content)
+      return;
+
     try {
-      if (!updatedScene) return;
+      setInlineMessage({ type: "info", message: "Saving..." });
 
       await fetchJson<Scene>(`/api/scenes/${sceneId}`, {
         method: "PATCH",
         body: JSON.stringify(updatedScene),
       });
+
+      previousSavedSceneRef.current = updatedScene;
+
+      setInlineMessage({ type: "info", message: "Saved" });
     } catch (error) {
-      // @TODO: Handle error (e.g., show a notification)
+      setInlineMessage({ type: "error", message: "Failed to save." });
+      // @todo: retry
     }
   }, []);
 
-  useAutoSave(
-    `scene-${sceneId}`,
-    scene,
-    updateScene
-  );
+  useAutoSave(`scene-${sceneId}`, scene, updateScene);
 
   function getCurrentScene(): Scene {
     return {
@@ -77,7 +92,7 @@ export function SceneSection({
   }
 
   return (
-    <SectionPanel title={title || "Loading..."}>
+    <SectionPanel title={title} inlineMessage={inlineMessage}>
       {onBack ? (
         <div className="mb-4">
           <button
@@ -89,7 +104,7 @@ export function SceneSection({
         </div>
       ) : null}
 
-      <div className="flex flex-col gap-3 border-b border-slate-200/10 pb-5">
+      <div className="sw-section-layout">
         <TextFieldContainer
           editable
           fieldName="Title"
