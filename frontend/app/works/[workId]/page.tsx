@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { use, useEffect, useState } from "react";
+import { LoadingPanel } from "@/components/ui/loading-panel";
 
 import { fetchJson } from "@/lib/api";
 import type { Work } from "@/types/work";
@@ -18,6 +19,7 @@ export default function WorkPage({ params }: WorkPageProps) {
   const { workId } = use(params);
   const [work, setWork] = useState<Work | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<
     "overview" | "scenes" | "characters"
   >("overview");
@@ -30,7 +32,7 @@ export default function WorkPage({ params }: WorkPageProps) {
         const workData = await fetchJson<Work>(`/api/works/${workId}`);
         if (active) setWork(workData);
       } catch (e) {
-        console.error("Unable to load work.", e);
+        if (active) setError("Unable to load work.");
       } finally {
         if (active) setLoading(false);
       }
@@ -44,57 +46,44 @@ export default function WorkPage({ params }: WorkPageProps) {
   }, [workId]);
 
   if (loading) {
+    /* @todo: custom error message */
     return (
       <main className="sw-page-shell">
-        <div className="mx-auto max-w-5xl rounded-[2rem] border border-slate-200/10 bg-slate-950/80 p-6">
-          Loading work...
+        <LoadingPanel hasError={error !== null} backline="/dashboard" />
+      </main>
+    );
+  } else if (work) {
+    return (
+      <main className="sw-page-shell">
+        <div className="sw-page-with-side-panel-layout">
+          <SideNavigationPanel
+            backLink="/dashboard"
+            /* @todo: avoid hardcoding options */
+            options={[
+              { id: "overview" as const, label: "Overview" },
+              { id: "scenes" as const, label: "Scenes" },
+              { id: "characters" as const, label: "Characters" },
+            ]}
+            onSelectOption={(optionId) => {
+              setSelectedItem(optionId as "overview" | "scenes" | "characters");
+            }}
+          />
+
+          <div className="sw-vertical-panel-gap">
+            {selectedItem === "overview" ? (
+              <WorkOverviewSection work={work} setWork={setWork} />
+            ) : null}
+
+            {selectedItem === "scenes" ? (
+              <SceneListSection work={work} />
+            ) : null}
+
+            {selectedItem === "characters" ? (
+              <CharacterListSection work={work} />
+            ) : null}
+          </div>
         </div>
       </main>
     );
   }
-
-  if (!work) {
-    return (
-      <main className="sw-page-shell">
-        <div className="mx-auto max-w-5xl rounded-[2rem] border border-slate-200/10 bg-slate-950/80 p-6">
-          <p className="text-slate-300">Work not found.</p>
-        </div>
-      </main>
-    );
-  }
-
-  return (
-    <main className="sw-page-shell">
-      <div className="mx-auto flex max-w-7xl flex-col gap-6 lg:flex-row">
-        <SideNavigationPanel
-          backLink="/dashboard"
-          options={[
-            { id: "overview" as const, label: "Overview" },
-            { id: "scenes" as const, label: "Scenes" },
-            { id: "characters" as const, label: "Characters" },
-          ]}
-          onSelectOption={(optionId) => {
-            setSelectedItem(optionId as "overview" | "scenes" | "characters");
-          }}
-        />
-
-        {selectedItem === "overview" ? (
-          <div className="flex-col gap-6 flex-1">
-            <WorkOverviewSection work={work} setWork={setWork}/>
-          </div>
-        ) : null}
-
-        {selectedItem === "scenes" ? (
-          <div className="flex-col gap-6 flex-1">
-            <SceneListSection work={work} />
-          </div>
-        ) : null}
-        {selectedItem === "characters" ? (
-          <div className="flex-col gap-6 flex-1">
-            <CharacterListSection work={work} />
-          </div>
-        ) : null}
-      </div>
-    </main>
-  );
 }

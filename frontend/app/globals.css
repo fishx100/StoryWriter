@@ -26,7 +26,11 @@ body {
   }
 
   .sw-section-layout {
-    @apply flex flex-col gap-3 border-b border-slate-200/10 pb-5;
+    @apply flex flex-col gap-3;
+  }
+
+  .sw-loading-panel {
+    @apply mx-auto w-max rounded-[2rem] border border-slate-200/10 bg-slate-950/80 p-6 text-center;
   }
 
   .sw-field-container {
@@ -137,6 +141,15 @@ body {
   }
   .sw-modal-footer {
     @apply mt-6 flex justify-end gap-3;
+  }
+
+  /* Layouts */
+  .sw-page-with-side-panel-layout {
+    @apply mx-auto flex max-w-7xl flex-col gap-6 lg:flex-row;
+  }
+
+  .sw-vertical-panel-gap {
+    @apply flex-col gap-6 flex-1;
   }
 }
 
