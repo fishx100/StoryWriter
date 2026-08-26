@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { Scene } from "@/types/scene";
 import { DraggableList } from "@/components/lists/draggable-list";
-import { StatusBadge } from "@/components/ui/work/status-badge";
+import { DraggableListItem } from "@/components/lists/draggable-list-item";
 
 type Props = {
   workId: string;
@@ -31,24 +31,8 @@ export function SceneList({
       onReorder={onReorder}
       onSelectItem={onSelectScene ?? undefined}
       customItem={(scene) => {
-        const inner = (
-          <>
-            <h4 className="text-lg font-semibold text-white">{scene.title}</h4>
-            <p className="text-sm text-slate-400">{scene.summary}</p>
-          </>
-        );
-
-        if (onSelectScene) {
-          return inner;
-        }
-
         return (
-          <Link
-            href={`/works/${workId}/scenes/${scene.id}`}
-            className="min-w-0 flex-1 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-300"
-          >
-            {inner}
-          </Link>
+          <DraggableListItem title={scene.title} description={scene.summary} />
         );
       }}
     />

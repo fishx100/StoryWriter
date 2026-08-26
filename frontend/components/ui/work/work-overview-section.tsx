@@ -21,17 +21,21 @@ export function WorkOverviewSection({
   const [title, setTitle] = useState(work.title);
   const [premise, setPremise] = useState(work.premise || "");
   const [genre, setGenre] = useState(work.genre || "");
-  const [inlineMessage, setInlineMessage] = useState<InlineMessageProps | undefined>(undefined);
+  const [inlineMessage, setInlineMessage] = useState<
+    InlineMessageProps | undefined
+  >(undefined);
   const previousSavedWorkRef = useRef<Work | null>(work);
 
   const updateWork = useCallback(async (updatedWork: Work) => {
     // @todo: temporary fix to prevent autosave when entering the page
     const prev = previousSavedWorkRef.current;
-    if (prev &&
+    if (
+      prev &&
       updatedWork.title === prev.title &&
       updatedWork.premise === prev.premise &&
       updatedWork.genre === prev.genre
-    ) return;
+    )
+      return;
 
     try {
       setInlineMessage({ type: "info", message: "Saving..." });
@@ -49,11 +53,7 @@ export function WorkOverviewSection({
     }
   }, []);
 
-  useAutoSave(
-    `work-${work.id}-overview`,
-    work,
-    updateWork
-  );
+  useAutoSave(`work-${work.id}-overview`, work, updateWork);
 
   useEffect(() => {
     if (setWork) {

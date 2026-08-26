@@ -2,6 +2,10 @@
 
 import { useId, type TextareaHTMLAttributes } from "react";
 
+/* A controlled textarea field component with a label.
+ * @todo This component seems to overlap with the FieldContainer component. Consider refactoring to reduce duplication.
+ */
+
 type TextareaFieldProps = {
   label: string;
   value: string;
@@ -21,12 +25,12 @@ export function TextareaField({
 
   return (
     <label className="block space-y-2" htmlFor={textareaId}>
-      <span className="text-sm text-slate-300">{label}</span>
+      <span className="sw-text-plain-small">{label}</span>
       <textarea
         id={textareaId}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className={`min-h-28 w-full rounded-2xl border border-slate-200/10 bg-slate-900 px-4 py-3 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-amber-300/50 ${className}`}
+        className={`sw-textarea-field-textarea ${className}`}
         {...props}
       />
     </label>

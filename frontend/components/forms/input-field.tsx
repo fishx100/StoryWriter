@@ -2,6 +2,10 @@
 
 import { useId, type InputHTMLAttributes } from "react";
 
+/** A controlled input field component with a label.
+ * @todo This component is very similar to the FieldContainer component. Consider refactoring to reduce duplication.
+ */
+
 type InputFieldProps = {
   label: string;
   value: string;
@@ -21,12 +25,12 @@ export function InputField({
 
   return (
     <label className="block space-y-2" htmlFor={inputId}>
-      <span className="text-sm text-slate-300">{label}</span>
+      <span className="sw-text-plain-small">{label}</span>
       <input
         id={inputId}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className={`w-full rounded-2xl border border-slate-200/10 bg-slate-900 px-4 py-3 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-amber-300/50 ${className}`}
+        className={`sw-input-field-input ${className}`}
         {...props}
       />
     </label>

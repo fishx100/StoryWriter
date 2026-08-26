@@ -2,6 +2,10 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 
+/**
+ * A generic draggable list component that allows reordering of items via drag-and-drop.
+ */
+
 type DraggableListProps<T> = {
   items: T[];
   getId: (item: T) => string;
@@ -64,7 +68,7 @@ export function DraggableList<T>({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="sw-draggable-list-layout">
       {ordering.map((id, idx) => {
         const item = itemsById.get(id);
         if (!item) return null;
@@ -77,17 +81,7 @@ export function DraggableList<T>({
             onDragStart={() => setDraggedId(id)}
             onDragOver={(e) => e.preventDefault()}
             onDrop={() => moveDraggedItem(id)}
-            onKeyDown={(event) => {
-              if (event.key === "ArrowUp") {
-                event.preventDefault();
-                move(idx, -1);
-              }
-              if (event.key === "ArrowDown") {
-                event.preventDefault();
-                move(idx, 1);
-              }
-            }}
-            className="flex items-start justify-between rounded border border-slate-200/10 bg-slate-800 p-3 outline-none transition hover:border-amber-300/40 focus:ring-2 focus:ring-amber-300"
+            className="sw-draggable-list-item"
             aria-label={`List item ${idx + 1}. Use Arrow Up or Arrow Down to reorder.`}
           >
             <div className="min-w-0 flex-1">
@@ -95,40 +89,19 @@ export function DraggableList<T>({
                 <button
                   type="button"
                   onClick={() => onSelectItem(item)}
-                  className="min-w-0 flex-1 rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-amber-300"
+                  className="sw-draggable-list-content"
                 >
                   {customItem ? customItem(item) : <div>{String(id)}</div>}
                 </button>
               ) : (
-                <div className="min-w-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-300">
+                /** @todo consider if we do have situation where there is no selection action */
+                <div className="sw-draggable-list-content">
                   {customItem ? customItem(item) : <div>{String(id)}</div>}
                 </div>
               )}
             </div>
 
-            <div className="flex flex-col items-end gap-2">
-              <div className="flex gap-2">
-                {idx > 0 ? (
-                  <button
-                    type="button"
-                    onClick={() => move(idx, -1)}
-                    className="rounded bg-slate-700 px-2 py-1"
-                    aria-label="Move item up"
-                  >
-                    ↑
-                  </button>
-                ) : null}
-                {idx < ordering.length - 1 ? (
-                  <button
-                    type="button"
-                    onClick={() => move(idx, 1)}
-                    className="rounded bg-slate-700 px-2 py-1"
-                    aria-label="Move item down"
-                  >
-                    ↓
-                  </button>
-                ) : null}
-              </div>
+            <div className="items-end">
               <button
                 type="button"
                 onClick={() => onRequestDelete && onRequestDelete(getId(item))}

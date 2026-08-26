@@ -8,6 +8,7 @@ import { TextareaField } from "@/components/forms/textarea-field";
 import type { CreateWorkInput, Work } from "@/types/work";
 import { fetchJson } from "@/lib/api";
 import useTagStore from "@/stores/tag-store";
+import { InlineMessage } from "../ui/common/inline-message";
 
 type CreateWorkModalProps = {
   onClose: () => void;
@@ -130,7 +131,7 @@ export function CreateWorkModal({
           />
         </div>
 
-        {error ? <p className="sw-text-warning">{error}</p> : null}
+        {error ? <InlineMessage type="error" message={error} /> : null}
 
         <div className="flex items-center justify-end gap-3 pt-2">
           <button type="button" onClick={onClose} className="sw-normal-button">

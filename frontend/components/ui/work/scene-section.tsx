@@ -20,7 +20,9 @@ export function SceneSection({ workId, sceneId, onBack }: SceneProps) {
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
-  const [inlineMessage, setInlineMessage] = useState<InlineMessageProps | undefined>(undefined);
+  const [inlineMessage, setInlineMessage] = useState<
+    InlineMessageProps | undefined
+  >(undefined);
   const previousSavedSceneRef = useRef<Scene | null>(null);
 
   useEffect(() => {
@@ -52,12 +54,16 @@ export function SceneSection({ workId, sceneId, onBack }: SceneProps) {
   }, [title, summary, content]);
 
   const updateScene = useCallback(async (updatedScene: Scene | null) => {
-    if (!updatedScene)
-      return;
+    if (!updatedScene) return;
 
     // @todo: temporary fix to prevent autosave when entering the page
     const prev = previousSavedSceneRef.current;
-    if (prev && prev.title === updatedScene.title && prev.summary === updatedScene.summary && prev.content === updatedScene.content)
+    if (
+      prev &&
+      prev.title === updatedScene.title &&
+      prev.summary === updatedScene.summary &&
+      prev.content === updatedScene.content
+    )
       return;
 
     try {

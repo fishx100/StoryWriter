@@ -12,13 +12,7 @@ export function DashboardHeader({ totalWorks }: DashboardHeaderProps) {
   return (
     <SectionPanel title="StoryWriter">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 className="sw-heading-big">Dashboard</h1>
-          <p className="sw-text-plain-small">
-            Mock authenticated workspace for planning and drafting stories.
-          </p>
-        </div>
-
+        <h1 className="sw-heading-big">Dashboard</h1>
         <SignIn />
       </div>
 

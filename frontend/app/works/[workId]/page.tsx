@@ -9,7 +9,6 @@ import type { Work } from "@/types/work";
 import { SideNavigationPanel } from "@/components/navigation/side-navigation-panel";
 import { WorkOverviewSection } from "@/components/ui/work/work-overview-section";
 import { SceneListSection } from "@/components/ui/work/scene-list-section";
-import { CharacterListSection } from "@/components/ui/work/character-list-section";
 
 type WorkPageProps = {
   params: Promise<{ workId: string }>;
@@ -78,9 +77,7 @@ export default function WorkPage({ params }: WorkPageProps) {
               <SceneListSection work={work} />
             ) : null}
 
-            {selectedItem === "characters" ? (
-              <CharacterListSection work={work} />
-            ) : null}
+            {/* @todo character list */}
           </div>
         </div>
       </main>

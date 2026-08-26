@@ -2,6 +2,9 @@
 
 import { useId, type SelectHTMLAttributes } from "react";
 
+/** A controlled dropdown field component with a label.
+ * @todo This component seems to overlap with the FieldContainer component. Consider refactoring to reduce duplication.
+ */
 type DropdownOption = {
   label: string;
   value: string;
@@ -29,12 +32,12 @@ export function DropdownField({
 
   return (
     <label className="block space-y-2" htmlFor={selectId}>
-      <span className="text-sm text-slate-300">{label}</span>
+      <span className="sw-text-plain-small">{label}</span>
       <select
         id={selectId}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className={`w-full rounded-2xl border border-slate-200/10 bg-slate-900 px-4 py-3 text-slate-100 outline-none transition focus:border-amber-300/50 ${className}`}
+        className={`sw-dropdown-field-select ${className}`}
         {...props}
       >
         {options.map((option) => (

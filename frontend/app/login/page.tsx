@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { SectionPanel } from "@/components/layout/section-panel";
+import { InlineMessage } from "@/components/ui/common/inline-message";
 import { signInWithGoogle, getSession } from "@/lib/auth";
 
 export default function LoginPage() {
@@ -15,8 +17,10 @@ export default function LoginPage() {
     try {
       await signInWithGoogle();
       // signInWithGoogle will redirect the browser to Supabase/Google
-    } catch (err: any) {
-      setError(err?.message ?? "Failed to start Google sign-in");
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error ? err.message : "Failed to start Google sign-in",
+      );
       setLoading(false);
     }
   }
@@ -36,23 +40,26 @@ export default function LoginPage() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [router]);
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md p-8 bg-white rounded shadow">
-        <h1 className="text-2xl font-semibold mb-2">StoryWriter</h1>
-        <p className="text-sm text-gray-500 mb-6">Your writing workspace.</p>
+    <main className="sw-page-shell flex items-center justify-center">
+      <div className="w-full max-w-md">
+        <SectionPanel title="StoryWriter">
+          <div className="sw-section-layout">
+            <h1 className="sw-heading-big">Your writing workspace.</h1>
 
-        {error && <div className="text-red-600 mb-4">{error}</div>}
+            {error && <InlineMessage type="error" message={error} />}
 
-        <button
-          onClick={handleGoogle}
-          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border rounded bg-white hover:bg-gray-50 text-black"
-          disabled={loading}
-        >
-          {loading ? "Starting…" : "Continue with Google"}
-        </button>
+            <button
+              onClick={handleGoogle}
+              className="sw-important-button mt-3 w-full disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={loading}
+            >
+              {loading ? "Starting…" : "Continue with Google"}
+            </button>
+          </div>
+        </SectionPanel>
       </div>
     </main>
   );

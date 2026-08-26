@@ -69,6 +69,7 @@ export default function TagItem({
     const trimmedName = editName.trim();
 
     if (!trimmedName) {
+      setEditName(tag.name);
       return;
     }
 
@@ -103,14 +104,14 @@ export default function TagItem({
       <div
         onClick={() => onSelect(tag.id)}
         onKeyDown={handleRowKeyDown}
-        className="flex-1 min-w-0 flex items-center gap-3 text-left cursor-pointer"
+        className="sw-tag-item-layout"
         role="button"
         tabIndex={0}
       >
         {/* Color picker */}
         {!isEditing ? (
           <span
-            className="w-3 h-3 rounded-full shrink-0"
+            className="sw-tag-item-color"
             style={{ background: editColor }}
           />
         ) : (
@@ -118,14 +119,14 @@ export default function TagItem({
             type="button"
             aria-label={`Change color for ${tag.name}`}
             onClick={handleColorClick}
-            className="w-3 h-3 rounded-full shrink-0"
+            className="sw-tag-item-color"
             style={{ background: editColor }}
           />
         )}
 
         {/* Tag name / edit input */}
         {!isEditing ? (
-          <span className="flex-1 min-w-0 truncate">{tag.name}</span>
+          <span className="sw-tag-item-name">{tag.name}</span>
         ) : (
           <input
             ref={editInputRef}
@@ -133,13 +134,13 @@ export default function TagItem({
             onChange={(e) => setEditName(e.target.value)}
             onClick={(e) => e.stopPropagation()}
             onKeyDown={handleEditInputKeyDown}
-            className="flex-1 min-w-0 p-1 bg-zinc-800 rounded"
+            className="sw-tag-input"
           />
         )}
 
         {/* Selected indicator */}
         {tag.id === selectedTagId && (
-          <span className="text-amber-400 shrink-0" aria-label="Selected">
+          <span className="sw-tag-selector" aria-label="Selected">
             ✓
           </span>
         )}
@@ -157,49 +158,51 @@ export default function TagItem({
       />
 
       {/* Actions */}
-      {!isEditing ? (
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={handleEditClick}
-            className="px-2 text-xs text-slate-300 hover:text-white"
-          >
-            Edit
-          </button>
+      <div className="flex items-center gap-2 shrink-0">
+        {!isEditing ? (
+          <>
+            <button
+              type="button"
+              onClick={handleEditClick}
+              className="sw-plain-button"
+            >
+              Edit
+            </button>
 
-          <button
-            type="button"
-            onClick={handleDeleteClick}
-            className="px-2 text-xs text-red-500 hover:text-red-400"
-          >
-            Delete
-          </button>
-        </div>
-      ) : (
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleSave();
-            }}
-            className="px-2 text-xs text-sky-400"
-          >
-            Save
-          </button>
+            <button
+              type="button"
+              onClick={handleDeleteClick}
+              className="sw-delete-button-plain"
+            >
+              Delete
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSave();
+              }}
+              className="sw-save-button-plain"
+            >
+              Save
+            </button>
 
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleCancel();
-            }}
-            className="px-2 text-xs text-slate-300"
-          >
-            Cancel
-          </button>
-        </div>
-      )}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCancel();
+              }}
+              className="sw-plain-button"
+            >
+              Cancel
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 }

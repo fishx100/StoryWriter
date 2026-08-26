@@ -1,5 +1,10 @@
 "use client";
 
+/** A modal component that prompts the user to confirm deletion of an item.
+ * It displays a title, a message, and two buttons: "Cancel" and "Delete".
+ * The "Delete" button triggers the onConfirm callback, while the "Cancel" button triggers the onClose callback.
+ */
+
 type ConfirmDeleteModalProps = {
   title?: string;
   message?: string;
@@ -16,9 +21,7 @@ export function ConfirmDeleteModal({
   return (
     <div className="sw-modal-panel">
       <div className="mb-6">
-        <p className="text-xs uppercase tracking-[0.3em] text-rose-300">
-          {title}
-        </p>
+        <p className="sw-text-warning">DELETION</p>
         <h2 className="sw-text-bold-medium">{title}</h2>
         <p className="sw-text-plain-small">{message}</p>
       </div>

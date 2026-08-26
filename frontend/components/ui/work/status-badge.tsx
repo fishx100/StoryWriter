@@ -9,10 +9,12 @@ type StatusBadgeProps = {
   workId?: string;
 };
 
+const defaultStatusColor = "#888888";
+
 export function StatusBadge({ status_tag_id, workId }: StatusBadgeProps) {
   const [currentTagId, setCurrentTagId] = useState(status_tag_id);
   const [currentLabel, setCurrentLabel] = useState("Todo");
-  const [currentColor, setCurrentColor] = useState("#888888");
+  const [currentColor, setCurrentColor] = useState(defaultStatusColor);
 
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -23,12 +25,7 @@ export function StatusBadge({ status_tag_id, workId }: StatusBadgeProps) {
   const getTag = useTagStore((s) => s.getTag);
 
   useEffect(() => {
-    const tag = getTag(currentTagId);
-    if (tag) {
-      setCurrentLabel(tag.name);
-      setCurrentColor(tag.color || "#888888");
-    }
-    console.log("StatusBadge: currentTagId changed", currentTagId, tag);
+    updateStatusLook(currentTagId);
   }, [currentTagId]);
 
   useLayoutEffect(() => {
@@ -42,11 +39,10 @@ export function StatusBadge({ status_tag_id, workId }: StatusBadgeProps) {
     });
   }, [isPickerOpen]);
 
-  async function handleOnChange(tagId: string) {
-    setCurrentTagId(tagId);
+  function updateStatusLook(tagId: string) {
     const tag = getTag?.(tagId);
     if (tag?.name) setCurrentLabel(tag.name);
-    if (tag?.color) setCurrentColor(tag.color);
+    if (tag?.color) setCurrentColor(tag.color || defaultStatusColor);
   }
 
   return (
@@ -59,7 +55,7 @@ export function StatusBadge({ status_tag_id, workId }: StatusBadgeProps) {
           e.stopPropagation();
           setIsPickerOpen(true);
         }}
-        className={`sw-tag-label`}
+        className="sw-tag-label"
         style={{
           borderColor: currentColor,
         }}
@@ -72,7 +68,7 @@ export function StatusBadge({ status_tag_id, workId }: StatusBadgeProps) {
       {isPickerOpen && (
         <StatusPicker
           positionStyle={popoverPositionStyle}
-          onChange={handleOnChange}
+          onChange={setCurrentTagId}
           currentStatusTagId={currentTagId}
           open={isPickerOpen}
           onClose={() => setIsPickerOpen(false)}

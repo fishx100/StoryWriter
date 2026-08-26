@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import Popover from "@/components/modals/popover";
 import useTagStore, { Tag } from "@/stores/tag-store";
 import { fetchJson } from "@/lib/api";
@@ -27,6 +27,7 @@ export default function StatusPicker({
     currentStatusTagId ?? null,
   );
   const [saving, setSaving] = useState(false);
+  // @todo: error is not shown
   const [error, setError] = useState<string | null>(null);
 
   const [tags, setTags] = useState<Tag[]>([]);
@@ -35,6 +36,7 @@ export default function StatusPicker({
   const deleteTag = useTagStore((s) => s.deleteTag);
 
   useEffect(() => {
+    // Refresh the list of status tags whenever the saving state changes (i.e. after a tag is created, updated, or deleted)
     const statusTags = useTagStore.getState().getTagsByCategory("status");
     setTags(statusTags);
   }, [saving]);
@@ -52,7 +54,8 @@ export default function StatusPicker({
       setSelectedTagId(tagId);
       onChange(tagId);
     } catch {
-      setError("Could not update work status right now.");
+      setError("Failed to update");
+      console.error(error);
       return;
     }
   }
@@ -73,9 +76,12 @@ export default function StatusPicker({
       }
     } catch {
       setError("Could not create new status right now.");
+      console.error(error);
     }
   }
 
+  // @todo: parent status badge doesn't update when a tag is edited or deleted.
+  // Need to trigger a refresh in the parent component when this happens.
   async function handleSaveEdit(
     tagId: string,
     newName: string,
@@ -83,19 +89,21 @@ export default function StatusPicker({
   ) {
     setSaving(true);
     try {
-      const saved = await updateTag({
+      await updateTag({
         id: tagId,
         name: newName.trim(),
         color: newColor,
       });
     } catch {
-      setError("Could not save changes right now.");
+      setError("Failed to save");
+      console.error(error);
     } finally {
       setSaving(false);
     }
   }
 
   async function handleDeleteTag(tagId: string) {
+    // @todo: show a confirmation modal instead of using window.confirm
     if (!confirm("Delete this status? This action cannot be undone.")) return;
     try {
       const ok = await deleteTag(tagId);
@@ -118,15 +126,9 @@ export default function StatusPicker({
       style={positionStyle}
       className="sw-status-picker"
     >
-      <div className="p-3 w-72 bg-zinc-900 rounded border border-zinc-700">
-        <div className="mb-2">
-          <h3 className="text-sm font-semibold">Status</h3>
-          <p className="text-xs text-slate-400">
-            Assign a status to this work.
-          </p>
-        </div>
-
-        <div className="divide-y divide-zinc-800 max-h-56 overflow-auto">
+      <div className="sw-popover-panel">
+        <h3 className="sw-text-bold-small mb-2">Status</h3>
+        <div className="sw-tag-list-layout">
           {tags.map((t) => {
             return (
               <TagItem
@@ -141,15 +143,13 @@ export default function StatusPicker({
           })}
         </div>
 
-        <div className="mt-3">
-          <button
-            type="button"
-            onClick={() => handleCreateNewTag()}
-            className="text-sm text-sky-400"
-          >
-            + Create Status
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => handleCreateNewTag()}
+          className="text-sm text-sky-400 mt-3"
+        >
+          + Create Status
+        </button>
       </div>
     </Popover>
   );

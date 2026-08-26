@@ -3,6 +3,10 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
+/**
+ * A popover component that renders its children in a portal and closes when clicking outside of it.
+ */
+
 type PopoverProps = {
   open: boolean;
   onClose: () => void;

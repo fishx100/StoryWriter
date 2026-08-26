@@ -2,6 +2,10 @@
 
 import React, { useEffect, useRef, useState } from "react";
 
+/**
+ * A container component for a field with a title and children. It can be selectable and show hover effects.
+ */
+
 type FieldContainerProps = {
   fieldName: string;
   children: React.ReactNode;
@@ -41,6 +45,7 @@ export function FieldContainer({
 
   function handleContainerClick() {
     if (!selectable) return;
+
     setIsSelected(true);
     onSelect?.();
   }

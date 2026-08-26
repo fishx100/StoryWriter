@@ -7,9 +7,10 @@ import { useEffect, useState } from "react";
 import { fetchJson } from "@/lib/api";
 import { useModal } from "@/components/modals/modal-provider";
 import { ConfirmDeleteModal } from "@/components/modals/confirm-delete-modal";
-import { SceneList } from "@/components/scene-list";
+import { SceneList } from "@/components/ui/work/scene-list";
 import { SceneSection } from "@/components/ui/work/scene-section";
-import { CreateSceneModal } from "@/components/create-scene-modal";
+import { CreateSceneModal } from "@/components/modals/create-scene-modal";
+import { InlineMessage } from "../common/inline-message";
 
 type SceneListSectionProps = {
   work: Work;
@@ -28,7 +29,7 @@ export function SceneListSection({ work }: SceneListSectionProps) {
         const data = await fetchJson<Scene[]>(`/api/works/${work.id}/scenes`);
         setScenes(data);
       } catch (error) {
-        console.error("Failed to fetch scenes:", error);
+        setError("Unable to load scenes.");
       } finally {
         setLoading(false);
       }
@@ -68,7 +69,8 @@ export function SceneListSection({ work }: SceneListSectionProps) {
             closeModal();
             return s;
           } catch (e) {
-            setError("Could not create scene.");
+            setError("Failed to create scene.");
+            // @todo: show error popup with retry
             throw e;
           }
         }}
@@ -102,45 +104,34 @@ export function SceneListSection({ work }: SceneListSectionProps) {
       });
       setScenes((current) => current.filter((s) => s.id !== scene.id));
     } catch {
-      setError("Unable to delete scene.");
+      setError("Failed to delete scene.");
+      // @todo: consider to show error popup
     } finally {
       setLoading(false);
     }
   }
 
-  if (selectedSceneId) {
-    const scene = scenes.find((s) => s.id === selectedSceneId);
-
-    if (!scene) {
-      return (
-        <SectionPanel>
-          <div className="rounded-[2rem] border border-dashed border-slate-200/10 bg-slate-900/50 p-8 text-slate-300">
-            Scene not found.
-          </div>
-        </SectionPanel>
+  function exitSceneSection(updatedScene?: Scene) {
+    if (updatedScene) {
+      setScenes((current) =>
+        current.map((s) => (s.id === updatedScene.id ? updatedScene : s)),
       );
     }
 
-    return (
-      <SceneSection
-        sceneId={selectedSceneId}
-        workId={work.id}
-        onBack={(updated?: Scene) => {
-          if (updated) {
-            setScenes((current) => current.map((s) => (s.id === updated.id ? updated : s)));
-          }
-          setSelectedSceneId(null);
-        }}
-      />
-    );
+    setSelectedSceneId(null);
   }
 
-  return (
+  // Show the scene section if a scene is selected, otherwise show the list of scenes
+  return selectedSceneId ? (
+    <SceneSection
+      sceneId={selectedSceneId}
+      workId={work.id}
+      onBack={exitSceneSection}
+    />
+  ) : (
     <SectionPanel title="Scenes">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-2xl font-semibold">
-          Browse and manage story scenes
-        </h2>
+        <h2 className="sw-text-bold-medium">Browse and manage story scenes</h2>
 
         <button onClick={openCreateWorkModal} className="sw-important-button">
           Create Scene
@@ -148,11 +139,10 @@ export function SceneListSection({ work }: SceneListSectionProps) {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center rounded-[2rem] border border-dashed border-slate-200/10 bg-slate-900/50 p-8 text-slate-300">
-          Loading scenes...
-        </div>
+        <InlineMessage message="Loading scenes..." type="info" />
       ) : (
         <>
+          {error ? <InlineMessage message={error} type="error" /> : null}
           <SceneList
             workId={work.id}
             scenes={scenes}
@@ -162,7 +152,6 @@ export function SceneListSection({ work }: SceneListSectionProps) {
               setSelectedSceneId(scene.id);
             }}
           />
-          {error ? <p className="mt-4 text-sm text-rose-300">{error}</p> : null}
         </>
       )}
     </SectionPanel>
