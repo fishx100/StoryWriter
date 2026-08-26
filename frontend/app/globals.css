@@ -144,7 +144,7 @@ body {
   }
 
   .sw-text-plain-small {
-    @apply text-sm leading-6 text-slate-300;
+    @apply text-sm leading-6 text-slate-500;
   }
 
   .sw-text-bold-small {
@@ -239,6 +239,10 @@ body {
 
   .sw-draggable-list-item-content {
     @apply min-w-0 flex-1 rounded-lg text-left focus:outline-none focus:ring-2 focus:ring-amber-300;
+  }
+
+  .sw-draggable-list-description {
+    @apply text-sm leading-6 text-slate-400;
   }
 }
 

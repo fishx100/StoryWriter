@@ -13,7 +13,7 @@ export function DraggableListItem({
     <>
       <h4 className="sw-text-bold-medium">{title}</h4>
       {description != null && (
-        <p className="sw-text-plain-small">{description}</p>
+        <p className="sw-draggable-list-description">{description}</p>
       )}
     </>
   );

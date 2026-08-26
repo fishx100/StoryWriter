@@ -89,13 +89,13 @@ export function DraggableList<T>({
                 <button
                   type="button"
                   onClick={() => onSelectItem(item)}
-                  className="sw-draggable-list-content"
+                  className="sw-draggable-list-item-content"
                 >
                   {customItem ? customItem(item) : <div>{String(id)}</div>}
                 </button>
               ) : (
                 /** @todo consider if we do have situation where there is no selection action */
-                <div className="sw-draggable-list-content">
+                <div className="sw-draggable-list-item-content">
                   {customItem ? customItem(item) : <div>{String(id)}</div>}
                 </div>
               )}
