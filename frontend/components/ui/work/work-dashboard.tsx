@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import useTagStore from "@/stores/tag-store";
+import { useEffect, useState } from "react";
 
 import { fetchJson } from "@/lib/api";
 import { DashboardHeader } from "../dashboard/dashboard-header";
@@ -18,8 +17,6 @@ export function WorkDashboard({}: WorkDashboardProps) {
 
   useEffect(() => {
     let active = true;
-
-    const isTagsLoaded = useTagStore.getState().isLoaded;
 
     async function loadWorks() {
       try {
@@ -38,28 +35,14 @@ export function WorkDashboard({}: WorkDashboardProps) {
       }
     }
 
-    // Only load works after tags are loaded (ensures tag reference data available)
-    if (isTagsLoaded) {
-      void loadWorks();
-    } else {
-      // subscribe to tagStore changes once
-      const unsubscribe = useTagStore.subscribe(
-        (state) => state.isLoaded,
-        (isLoaded) => {
-          if (isLoaded) {
-            void loadWorks();
-            unsubscribe();
-          }
-        },
-      );
-    }
+    void loadWorks();
 
     return () => {
       active = false;
     };
   }, []);
 
-  const totalWorks = useMemo(() => works.length, [works]);
+  const totalWorks = works.length;
 
   return (
     <main className="sw-page-shell">

@@ -17,14 +17,10 @@ export async function middleware(request: NextRequest) {
     // headers if the SDK needs to refresh the session.
     const res = NextResponse.next();
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const supabase = createServerSupabase(request as unknown as Request, res);
+    const supabase = await createServerSupabase(request, res);
 
     // Use getUser() which verifies the session with the Supabase Auth server.
     // This avoids trusting the raw user object from storage/cookies.
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     const { data: userData, error: userError } = await supabase.auth.getUser();
 
     if (userError || !userData?.user) {

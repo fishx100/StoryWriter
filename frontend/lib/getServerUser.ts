@@ -1,33 +1,28 @@
+import type { NextRequest, NextResponse } from "next/server";
 import { createServerSupabase } from "./supabaseServer";
 
-/**
- * Convenience helper for server components and route handlers to read the
- * authenticated user and session via the server Supabase client.
- */
-export async function getServerUser(request?: Request, response?: any) {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const supabase = createServerSupabase(request, response);
-
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+/** Returns the authenticated user from a verified Supabase session. */
+export async function getServerUser(
+  request?: NextRequest,
+  response?: NextResponse,
+) {
+  const supabase = await createServerSupabase(request, response);
   const { data, error } = await supabase.auth.getUser();
 
   if (error) return { user: null, error };
 
-  return { user: data?.user ?? null };
+  return { user: data.user };
 }
 
-export async function getServerSession(request?: Request, response?: any) {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const supabase = createServerSupabase(request, response);
-
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+/** Returns the current server-side session, if one exists. */
+export async function getServerSession(
+  request?: NextRequest,
+  response?: NextResponse,
+) {
+  const supabase = await createServerSupabase(request, response);
   const { data, error } = await supabase.auth.getSession();
 
   if (error) return { session: null, error };
 
-  return { session: data?.session ?? null };
+  return { session: data.session };
 }

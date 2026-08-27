@@ -3,7 +3,7 @@ import { createServerSupabase } from "@/lib/supabaseServer";
 import AuthProvider from "@/components/auth/AuthProvider";
 
 export default async function DashboardPage() {
-  const supabase = createServerSupabase();
+  const supabase = await createServerSupabase();
 
   const { data: userData } = await supabase.auth.getUser();
   const { data: sessionData } = await supabase.auth.getSession();

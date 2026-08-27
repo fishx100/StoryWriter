@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabaseServer";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     // Prepare a redirect response so createServerSupabase can write Set-Cookie
     // headers to clear Supabase auth cookies when signing out.
@@ -9,14 +9,10 @@ export async function POST(request: Request) {
     const res = NextResponse.redirect(redirectUrl);
 
     // Create server supabase client with the response so cookies are written
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const supabase = createServerSupabase(request, res);
+    const supabase = await createServerSupabase(request, res);
 
     // Call signOut on the server client; this will clear auth cookies via
     // the @supabase/ssr cookie helpers and the provided NextResponse.
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     await supabase.auth.signOut();
 
     return res;

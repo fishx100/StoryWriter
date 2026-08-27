@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useLayoutEffect, useEffect } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 import StatusPicker from "./status-picker";
 import useTagStore from "@/stores/tag-store";
 
@@ -13,8 +13,6 @@ const defaultStatusColor = "#888888";
 
 export function StatusBadge({ status_tag_id, workId }: StatusBadgeProps) {
   const [currentTagId, setCurrentTagId] = useState(status_tag_id);
-  const [currentLabel, setCurrentLabel] = useState("Todo");
-  const [currentColor, setCurrentColor] = useState(defaultStatusColor);
 
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -22,11 +20,11 @@ export function StatusBadge({ status_tag_id, workId }: StatusBadgeProps) {
     React.CSSProperties | undefined
   >();
 
-  const getTag = useTagStore((s) => s.getTag);
-
-  useEffect(() => {
-    updateStatusLook(currentTagId);
-  }, [currentTagId]);
+  const currentTag = useTagStore((state) =>
+    state.tags.find((tag) => tag.id === currentTagId),
+  );
+  const currentLabel = currentTag?.name ?? "Unknown";
+  const currentColor = currentTag?.color ?? defaultStatusColor;
 
   useLayoutEffect(() => {
     if (!isPickerOpen || !buttonRef.current) return;
@@ -38,12 +36,6 @@ export function StatusBadge({ status_tag_id, workId }: StatusBadgeProps) {
       zIndex: 9999,
     });
   }, [isPickerOpen]);
-
-  function updateStatusLook(tagId: string) {
-    const tag = getTag?.(tagId);
-    if (tag?.name) setCurrentLabel(tag.name);
-    if (tag?.color) setCurrentColor(tag.color || defaultStatusColor);
-  }
 
   return (
     <div className="relative inline-block">

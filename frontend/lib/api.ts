@@ -1,3 +1,5 @@
+import { getBrowserSupabase } from "./supabaseClient";
+
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
@@ -13,19 +15,15 @@ export async function fetchJson<T>(
 
   if (typeof window !== "undefined") {
     try {
-      // import lazily to avoid SSR import of browser-only client
-      // eslint-disable-next-line @typescript-eslint/no-var-requires,global-require
-      const { getBrowserSupabase } = require("./supabaseClient");
       const supabase = getBrowserSupabase();
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+
       const {
         data: { session },
       } = await supabase.auth.getSession();
       if (session?.access_token) {
         headers["Authorization"] = `Bearer ${session.access_token}`;
       }
-    } catch (e) {
+    } catch {
       // ignore — proceed without auth header
     }
   }

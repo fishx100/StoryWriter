@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { createServerSupabase } from "@/lib/supabaseServer";
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const url = new URL(request.url);
     const code = url.searchParams.get("code");
@@ -19,13 +19,10 @@ export async function GET(request: Request) {
     const res = NextResponse.redirect(redirectUrl);
 
     // Create server supabase client with the response so cookies are written
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    const supabase = createServerSupabase(request, res);
+    const supabase = await createServerSupabase(request, res);
 
     // Exchange the authorization code for a session on the server.
     // Pass the raw authorization code string per Supabase API
-    // @ts-ignore
     const { data, error } = await supabase.auth.exchangeCodeForSession(
       code as string,
     );
