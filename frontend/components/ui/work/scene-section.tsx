@@ -8,6 +8,7 @@ import { fetchJson } from "@/lib/api";
 import { Scene } from "@/types/scene";
 import React, { useCallback, useState, useEffect, useRef } from "react";
 import { InlineMessageProps } from "../common/inline-message";
+import { countWords } from "../../../utils/TextUtils";
 
 type SceneProps = {
   workId: string;
@@ -85,6 +86,8 @@ export function SceneSection({ workId, sceneId, onBack }: SceneProps) {
 
   useAutoSave(`scene-${sceneId}`, scene, updateScene);
 
+  const wordCount = countWords(content);
+
   function getCurrentScene(): Scene {
     return {
       id: scene?.id ?? sceneId,
@@ -93,7 +96,7 @@ export function SceneSection({ workId, sceneId, onBack }: SceneProps) {
       content,
       status: scene?.status ?? "",
       order_index: scene?.order_index ?? 0,
-      word_count: scene?.word_count ?? 0,
+      word_count: wordCount,
     };
   }
 
@@ -128,6 +131,9 @@ export function SceneSection({ workId, sceneId, onBack }: SceneProps) {
           fieldValue={content}
           onChange={setContent}
         />
+        <p className="sw-text-plain-small text-right" aria-live="polite">
+          {wordCount} {wordCount === 1 ? "word" : "words"}
+        </p>
       </div>
     </SectionPanel>
   );
