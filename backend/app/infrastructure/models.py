@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from uuid import uuid4
 
-from sqlalchemy import DateTime, String, Integer
+from sqlalchemy import DateTime, String, Integer, JSON, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.infrastructure.database import Base
@@ -77,6 +77,27 @@ class CharacterModel(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc)
     )
+
+
+class CollectionModel(Base):
+    __tablename__ = 'collections'
+    __table_args__ = (UniqueConstraint('work_id', 'name', name='uq_collection_work_name'),)
+
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid4()))
+    work_id: Mapped[str] = mapped_column(ForeignKey('works.id'), nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False)
+    template: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+class CollectionItemModel(Base):
+    __tablename__ = 'collection_items'
+
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid4()))
+    collection_id: Mapped[str] = mapped_column(ForeignKey('collections.id'), nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(255), nullable=False, default='untitled')
+    description: Mapped[str] = mapped_column(String(1000), nullable=False, default='')
+    order_index: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    fields: Mapped[list] = mapped_column(JSON, nullable=False)
 
 
 class UserModel(Base):

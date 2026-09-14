@@ -1,0 +1,14 @@
+{
+  "fields": [
+    {
+      "id": "name",
+      "label": "Name",
+      "type": "text"
+    },
+    {
+      "id": "description",
+      "label": "Description",
+      "type": "textarea"
+    }
+  ]
+}

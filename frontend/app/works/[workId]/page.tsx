@@ -9,6 +9,9 @@ import type { Work } from "@/types/work";
 import { SideNavigationPanel } from "@/components/navigation/side-navigation-panel";
 import { WorkOverviewSection } from "@/components/ui/work/work-overview-section";
 import { SceneListSection } from "@/components/ui/work/scene-list-section";
+import { CollectionListSection } from "@/components/ui/layout/collection-list-section";
+import characterTemplate from "@/templates/character.json";
+import type { CollectionTemplate } from "@/types/collection";
 
 type WorkPageProps = {
   params: Promise<{ workId: string }>;
@@ -77,7 +80,15 @@ export default function WorkPage({ params }: WorkPageProps) {
               <SceneListSection work={work} />
             ) : null}
 
-            {/* @todo character list */}
+            {selectedItem === "characters" ? (
+              <CollectionListSection
+                key={work.id}
+                workId={work.id}
+                collectionName="Characters"
+                itemLabel="Character"
+                template={characterTemplate as CollectionTemplate}
+              />
+            ) : null}
           </div>
         </div>
       </main>

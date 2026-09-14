@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_work_service
-from app.infrastructure.models import SceneModel
+from app.infrastructure.models import SceneModel, CollectionModel, CollectionItemModel
 from app.core.dependencies import get_db
 from app.schemas.work import WorkCreate, WorkRead, WorkUpdate
 from app.services.work_service import WorkService
@@ -88,5 +88,8 @@ def delete_work(
 		raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Work not found')
 
 	db.query(SceneModel).filter(SceneModel.work_id == str(work_id)).delete(synchronize_session=False)
+	collection_ids = db.query(CollectionModel.id).filter(CollectionModel.work_id == str(work_id))
+	db.query(CollectionItemModel).filter(CollectionItemModel.collection_id.in_(collection_ids)).delete(synchronize_session=False)
+	db.query(CollectionModel).filter(CollectionModel.work_id == str(work_id)).delete(synchronize_session=False)
 	work_service.delete_work(work_id)
 	return None
