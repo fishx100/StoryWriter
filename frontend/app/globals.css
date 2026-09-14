@@ -90,7 +90,7 @@ body {
 
   /** Buttons */
   .sw-important-button {
-    @apply rounded-full bg-amber-300 border border-slate-200/10 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-amber-200;
+    @apply rounded-full bg-amber-300 border border-slate-200/10 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-amber-200 disabled:pointer-events-none disabled:bg-slate-800 disabled:text-slate-500;
   }
 
   .sw-warning-button {

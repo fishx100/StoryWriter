@@ -1,9 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { SectionPanel } from "@/components/layout/section-panel";
 import { CollectionItemList } from "@/components/lists/collection-item-list";
 import { ConfirmDeleteModal } from "@/components/modals/confirm-delete-modal";
+import {
+  CreateCollectionItemModal,
+  type CreateCollectionItemInput,
+} from "@/components/modals/create-collection-item-modal";
 import { useModal } from "@/components/modals/modal-provider";
 import { InlineMessage } from "@/components/ui/common/inline-message";
 import {
@@ -33,10 +37,8 @@ export function CollectionListSection({
   const [collection, setCollection] = useState<Collection | null>(null);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
-  const creatingRef = useRef(false);
   const { openModal, closeModal } = useModal();
 
   useEffect(() => {
@@ -69,13 +71,30 @@ export function CollectionListSection({
     } : current);
   }, []);
 
-  async function handleCreate() {
-    if (!collection || creatingRef.current) return;
-    creatingRef.current = true;
-    setCreating(true);
+  async function handleCreate(input: CreateCollectionItemInput) {
+    if (!collection) return;
     setError(null);
     try {
+      const name = input.name.trim() || "untitled";
       const item = createCollectionItem(template);
+      item.name = name;
+      item.description = input.description;
+      // Match the name and description fields to the input values, if they exist.
+      item.fields = item.fields.map((field) => {
+        if (
+          field.id === "name" &&
+          (field.type === "text" || field.type === "textarea")
+        ) {
+          return { ...field, value: name };
+        }
+        if (
+          field.id === "description" &&
+          (field.type === "text" || field.type === "textarea")
+        ) {
+          return { ...field, value: input.description };
+        }
+        return field;
+      });
       const saved = await saveNewCollectionItem(collection.id, item);
       setCollection((current) => current ? {
         ...current,
@@ -87,12 +106,22 @@ export function CollectionListSection({
           })),
         ],
       } : current);
+      closeModal();
     } catch {
       setError(`Failed to create ${itemLabel.toLowerCase()}. Please try again.`);
-    } finally {
-      creatingRef.current = false;
-      setCreating(false);
+      throw new Error(`Failed to create ${itemLabel.toLowerCase()}.`);
     }
+  }
+
+  function openCreateModal() {
+    if (!collection) return;
+    openModal(
+      <CreateCollectionItemModal
+        itemLabel={itemLabel}
+        onClose={closeModal}
+        onSubmit={handleCreate}
+      />
+    );
   }
 
   async function handleReorder(order: string[]) {
@@ -167,11 +196,11 @@ export function CollectionListSection({
         </h2>
         <button
           type="button"
-          onClick={() => void handleCreate()}
-          disabled={loading || !collection || creating}
+          onClick={openCreateModal}
+          disabled={loading || !collection}
           className="sw-important-button"
         >
-          {creating ? "Creating..." : `Create ${itemLabel}`}
+          Create {itemLabel}
         </button>
       </div>
 
