@@ -1,6 +1,8 @@
 "use client";
 
 import type { ItemField } from "@/types/collection";
+import { EditorFieldContainer } from "@/components/layout/editor-field-container";
+import { TextFieldContainer } from "@/components/layout/text-field-container";
 
 type CollectionFieldProps = {
   field: ItemField;
@@ -14,23 +16,23 @@ export function CollectionField({ field, onChange }: CollectionFieldProps) {
 
   const value = String(field.value ?? "");
 
+  if (field.type === "textarea") {
+    return (
+      <EditorFieldContainer
+        fieldName={field.label}
+        fieldValue={value}
+        onChange={onChange}
+      />
+    );
+  }
+
   return (
-    <label className="block space-y-2">
-      <span className="sw-text-plain-small">{field.label}</span>
-      {field.type === "textarea" ? (
-        <textarea
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          className="sw-textarea-field-textarea"
-        />
-      ) : (
-        <input
-          type="text"
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          className="sw-input-field-input"
-        />
-      )}
-    </label>
+    <TextFieldContainer
+      fieldName={field.label}
+      fieldValue={value}
+      editable
+      multiline={false}
+      onChange={onChange}
+    />
   );
 }

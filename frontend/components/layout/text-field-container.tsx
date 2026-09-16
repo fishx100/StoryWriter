@@ -7,6 +7,7 @@ type TextFieldContainerProps = {
   fieldName: string;
   fieldValue: string;
   editable?: boolean;
+  multiline?: boolean;
   onChange?: (newValue: string) => void;
 };
 
@@ -14,6 +15,7 @@ export function TextFieldContainer({
   fieldName,
   fieldValue,
   editable = false,
+  multiline,
   onChange,
 }: TextFieldContainerProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -43,7 +45,7 @@ export function TextFieldContainer({
     onChange?.(newValue);
   }
 
-  const isMultiline = value.includes("\n");
+  const isMultiline = multiline ?? value.includes("\n");
 
   return (
     <FieldContainer
