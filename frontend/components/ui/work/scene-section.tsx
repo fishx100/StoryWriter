@@ -130,10 +130,8 @@ export function SceneSection({ workId, sceneId, onBack }: SceneProps) {
           fieldName="Content"
           fieldValue={content}
           onChange={setContent}
+          showWordCount
         />
-        <p className="sw-text-plain-small text-right" aria-live="polite">
-          {wordCount} {wordCount === 1 ? "word" : "words"}
-        </p>
       </div>
     </SectionPanel>
   );
