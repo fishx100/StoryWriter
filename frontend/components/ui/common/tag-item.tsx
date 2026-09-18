@@ -8,6 +8,8 @@ type Props = {
   onSelect: (id: string) => void;
   onSaveEdit: (id: string, newName: string, newColor: string) => void;
   onDelete: (id: string) => void;
+  onSetDefault?: (id: string) => void;
+  deleteDisabled?: boolean;
   selectedTagId?: string | null;
 };
 
@@ -16,6 +18,8 @@ export default function TagItem({
   onSelect,
   onSaveEdit,
   onDelete,
+  onSetDefault,
+  deleteDisabled = false,
   selectedTagId,
 }: Props) {
   const [isEditing, setIsEditing] = useState(false);
@@ -99,7 +103,7 @@ export default function TagItem({
   };
 
   return (
-    <div className="flex items-center min-w-0">
+    <div className="flex items-center gap-2 min-w-0">
       {/* Clickable tag row */}
       <div
         onClick={() => onSelect(tag.id)}
@@ -139,11 +143,13 @@ export default function TagItem({
         )}
 
         {/* Selected indicator */}
-        {tag.id === selectedTagId && (
-          <span className="sw-tag-selector" aria-label="Selected">
+          <span
+            className={`sw-tag-selector${tag.id === selectedTagId ? "" : " invisible"}`}
+            aria-label={tag.id === selectedTagId ? "Selected" : undefined}
+            aria-hidden={tag.id !== selectedTagId}
+          >
             ✓
           </span>
-        )}
       </div>
 
       {/* Hidden color input */}
@@ -158,7 +164,7 @@ export default function TagItem({
       />
 
       {/* Actions */}
-      <div className="flex items-center gap-2 shrink-0">
+      <div className={`sw-tag-actions${onSetDefault ? " sw-tag-actions-with-default" : ""}`}>
         {!isEditing ? (
           <>
             <button
@@ -172,6 +178,8 @@ export default function TagItem({
             <button
               type="button"
               onClick={handleDeleteClick}
+              disabled={deleteDisabled}
+              title={deleteDisabled ? "Choose another default status before deleting this one." : undefined}
               className="sw-delete-button-plain"
             >
               Delete
@@ -201,6 +209,19 @@ export default function TagItem({
               Cancel
             </button>
           </>
+        )}
+        {onSetDefault && (
+          <button
+            type="button"
+            disabled={tag.is_default || isEditing}
+            onClick={(event) => {
+              event.stopPropagation();
+              onSetDefault(tag.id);
+            }}
+            className="sw-plain-button"
+          >
+            {tag.is_default ? "Default" : "Set default"}
+          </button>
         )}
       </div>
     </div>

@@ -23,10 +23,14 @@ export type Tag = {
   name: string;
   color: string;
   order: number;
+  is_default: boolean;
 };
 
 type TagStore = {
   tags: Tag[];
+  // Changes only after a successful deletion, not edits, loads, or clear().
+  deletionVersion: number;
+  lastDeletedTagId: string | null;
   isLoading: boolean;
   isLoaded: boolean;
   error: string | null;
@@ -35,7 +39,6 @@ type TagStore = {
     category?: string;
     name: string;
     color?: string;
-    order?: number;
   }) => Promise<Tag | null>;
   updateTag: (tag: {
     id: string;
@@ -43,6 +46,7 @@ type TagStore = {
     color?: string;
   }) => Promise<Tag | null>;
   deleteTag: (id: string) => Promise<boolean>;
+  setDefaultTag: (id: string, category: string) => Promise<boolean>;
   getTag: (id: string) => Tag | undefined;
   getTagsByCategory: (category: string) => Tag[];
   clear: () => void;
@@ -51,6 +55,8 @@ type TagStore = {
 export const useTagStore = create<TagStore>()(
   subscribeWithSelector((set, get) => ({
     tags: [],
+    deletionVersion: 0,
+    lastDeletedTagId: null,
     isLoading: false,
     isLoaded: false,
     error: null,
@@ -76,7 +82,6 @@ export const useTagStore = create<TagStore>()(
       category = "",
       name,
       color = "#888888",
-      order = 0,
     }) => {
       if (
         (!name || name.trim() === "") &&
@@ -91,8 +96,7 @@ export const useTagStore = create<TagStore>()(
           name: string;
           color: string;
           category: string;
-          order: number;
-        } = { name, color, category, order };
+        } = { name, color, category };
 
         const newTag = await fetchJson<Tag>("/api/tags", {
           method: "POST",
@@ -135,10 +139,28 @@ export const useTagStore = create<TagStore>()(
       }
     },
 
+    setDefaultTag: async (id: string, category: string) => {
+      try {
+        const updated = await fetchJson<Tag>(`/api/tags/${id}/default`, { method: "PUT" });
+        set((state) => ({
+          tags: state.tags.map((tag) => tag.category === category
+            ? { ...tag, is_default: tag.id === updated.id }
+            : tag),
+          error: null,
+        }));
+        return true;
+      } catch (err: unknown) {
+        set({ error: formatError(err) });
+        return false;
+      }
+    },
+
     deleteTag: async (id: string) => {
       try {
         await fetchJson(`/api/tags/${id}`, { method: "DELETE" });
         set((s) => ({
+          deletionVersion: s.deletionVersion + 1,
+          lastDeletedTagId: id,
           tags: s.tags
             .filter((t) => t.id !== id)
             .slice()
@@ -163,7 +185,7 @@ export const useTagStore = create<TagStore>()(
     },
 
     clear: () =>
-      set({ tags: [], isLoading: false, isLoaded: false, error: null }),
+      set({ tags: [], lastDeletedTagId: null, isLoading: false, isLoaded: false, error: null }),
   })),
 );
 

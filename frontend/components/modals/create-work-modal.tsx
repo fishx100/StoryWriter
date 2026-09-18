@@ -30,21 +30,22 @@ export function CreateWorkModal({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const statusTags = useTagStore.getState().getTagsByCategory("status");
+  const tags = useTagStore((state) => state.tags);
+  const statusTags = tags.filter((tag) => tag.category === "status");
+  const defaultTagId = statusTags.find((tag) => tag.is_default)?.id;
   const statusOptions = statusTags.map((tag) => ({
     value: tag.id,
     label: tag.name,
   }));
 
   useEffect(() => {
-    if (statusTags.length > 0) {
+    if (defaultTagId) {
       setForm((current) => ({
         ...current,
-        // default to first status tag if available
-        status_tag_id: statusTags[0].id,
+        status_tag_id: current.status_tag_id || defaultTagId,
       }));
     }
-  }, []);
+  }, [defaultTagId]);
 
   async function handleCreateWork(input: CreateWorkInput) {
     setLoading(true);

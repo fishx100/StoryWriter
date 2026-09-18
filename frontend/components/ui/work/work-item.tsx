@@ -1,18 +1,26 @@
 import type { Work } from "@/types/work";
-import { StatusBadge } from "./status-badge";
+import { StatusBadge } from "../common/status-badge";
 
 type WorkItemProps = {
   work: Work;
   onClick: (work: Work) => void;
   onDelete: (work: Work) => void;
+  onStatusChange: (work: Work, tagId: string) => void;
+  statusSaving: boolean;
 };
 
-export function WorkItem({ work, onClick, onDelete }: WorkItemProps) {
+export function WorkItem({
+  work, onClick, onDelete, onStatusChange, statusSaving,
+}: WorkItemProps) {
   return (
     <article className="sw-thumbnail">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <StatusBadge status_tag_id={work.status_tag_id} workId={work.id} />
+          <StatusBadge
+            currentStatusTagId={work.status_tag_id}
+            onChange={(tagId) => onStatusChange(work, tagId)}
+            disabled={statusSaving}
+          />
           <button
             type="button"
             onClick={() => onClick(work)}

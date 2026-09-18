@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
-from app.infrastructure.models import StatusTagModel
+from app.infrastructure.models import StatusTagModel, WorkModel
 
 
 class SqlAlchemyStatusTagRepository:
@@ -86,6 +86,34 @@ class SqlAlchemyStatusTagRepository:
         # Only owner may delete
         if user_id is None or model.user_id != user_id:
             return False
+        if model.type == 'status':
+            if model.is_default:
+                raise ValueError('Choose another default status before deleting this one.')
+            default = next((tag for tag in self.list_by_owner(user_id, 'status') if tag.is_default), None)
+            if default is None:
+                raise ValueError('Choose a default status before deleting a status.')
+            # Reassignment and deletion must commit together, for this owner only.
+            self._session.query(WorkModel).filter(
+                WorkModel.user_id == user_id, WorkModel.status_tag_id == tag_id,
+            ).update({WorkModel.status_tag_id: default.id}, synchronize_session='fetch')
         self._session.delete(model)
         self._session.commit()
         return True
+
+    def set_default(self, tag_id: str, user_id: str) -> StatusTagModel | None:
+        model = self.get_by_id(tag_id)
+        if model is None or model.user_id != user_id or model.type != 'status':
+            return None
+        self._session.query(StatusTagModel).filter(
+            StatusTagModel.user_id == user_id, StatusTagModel.type == 'status',
+        ).update({StatusTagModel.is_default: False}, synchronize_session='fetch')
+        model.is_default = True
+        self._session.commit()
+        self._session.refresh(model)
+        return model
+
+    def ensure_default(self, user_id: str) -> None:
+        tags = self.list_by_owner(user_id, 'status')
+        if tags and not any(tag.is_default for tag in tags):
+            default = next((tag for tag in tags if tag.name.lower() == 'todo'), tags[0])
+            self.set_default(default.id, user_id)

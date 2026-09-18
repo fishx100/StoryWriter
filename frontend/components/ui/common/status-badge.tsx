@@ -1,18 +1,22 @@
 "use client";
 
-import { useState, useRef, useLayoutEffect } from "react";
+import { useState, useRef, useLayoutEffect, useEffect } from "react";
 import StatusPicker from "./status-picker";
 import useTagStore from "@/stores/tag-store";
 
 type StatusBadgeProps = {
-  status_tag_id: string;
-  workId?: string;
+  currentStatusTagId?: string;
+  onChange: (tagId: string) => void;
+  disabled?: boolean;
 };
 
 const defaultStatusColor = "#888888";
 
-export function StatusBadge({ status_tag_id, workId }: StatusBadgeProps) {
-  const [currentTagId, setCurrentTagId] = useState(status_tag_id);
+export function StatusBadge({
+  currentStatusTagId,
+  onChange,
+  disabled = false,
+}: StatusBadgeProps) {
 
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -21,10 +25,20 @@ export function StatusBadge({ status_tag_id, workId }: StatusBadgeProps) {
   >();
 
   const currentTag = useTagStore((state) =>
-    state.tags.find((tag) => tag.id === currentTagId),
+    state.tags.find((tag) => tag.id === currentStatusTagId),
   );
   const currentLabel = currentTag?.name ?? "Unknown";
   const currentColor = currentTag?.color ?? defaultStatusColor;
+
+  useEffect(() => useTagStore.subscribe(
+    (state) => state.deletionVersion,
+    () => {
+      const { lastDeletedTagId, tags } = useTagStore.getState();
+      if (lastDeletedTagId !== currentStatusTagId) return;
+      const defaultTag = tags.find((tag) => tag.category === "status" && tag.is_default);
+      if (defaultTag) onChange(defaultTag.id);
+    },
+  ), [currentStatusTagId, onChange]);
 
   useLayoutEffect(() => {
     if (!isPickerOpen || !buttonRef.current) return;
@@ -42,6 +56,7 @@ export function StatusBadge({ status_tag_id, workId }: StatusBadgeProps) {
       <button
         ref={buttonRef}
         type="button"
+        disabled={disabled}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -60,11 +75,11 @@ export function StatusBadge({ status_tag_id, workId }: StatusBadgeProps) {
       {isPickerOpen && (
         <StatusPicker
           positionStyle={popoverPositionStyle}
-          onChange={setCurrentTagId}
-          currentStatusTagId={currentTagId}
+          onChange={onChange}
+          currentStatusTagId={currentStatusTagId}
           open={isPickerOpen}
           onClose={() => setIsPickerOpen(false)}
-          workId={workId}
+          disabled={disabled}
         />
       )}
     </div>

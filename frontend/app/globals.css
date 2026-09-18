@@ -102,7 +102,7 @@ body {
   }
 
   .sw-plain-button {
-    @apply px-2 text-sm text-slate-400 transition hover:text-slate-300 disabled:cursor-not-allowed disabled:opacity-60;
+    @apply px-2 text-sm text-slate-400 transition enabled:hover:text-slate-300 disabled:cursor-not-allowed disabled:opacity-60;
   }
 
   .sw-delete-button {
@@ -110,11 +110,11 @@ body {
   }
 
   .sw-delete-button-plain {
-    @apply px-2 text-xs text-red-500 hover:text-red-400;
+    @apply px-2 text-xs text-red-500 enabled:hover:text-red-400 disabled:text-slate-400 disabled:cursor-not-allowed disabled:opacity-60;
   }
 
   .sw-save-button-plain {
-    @apply px-2 text-sm text-emerald-500 hover:text-emerald-400;
+    @apply px-2 text-sm text-emerald-500 enabled:hover:text-emerald-400 disabled:text-slate-400 disabled:cursor-not-allowed disabled:opacity-60;
   }
 
   .sw-section-back-button {
@@ -197,7 +197,8 @@ body {
   }
 
   .sw-tag-list-layout {
-    @apply divide-y divide-zinc-800 max-h-56 overflow-auto;
+    /* Fieldsets otherwise keep a min-content width based on the edit input. */
+    @apply min-w-0 w-full divide-y divide-zinc-800 max-h-56 overflow-auto;
   }
 
   .sw-tag-item-layout {
@@ -213,11 +214,29 @@ body {
   }
 
   .sw-tag-selector {
-    @apply text-amber-400 shrink-0;
+    @apply text-amber-400 shrink-0 w-4 text-center;
+  }
+
+  .sw-status-picker .sw-popover-panel {
+    width: 26rem;
+    max-width: calc(100vw - 2rem);
+  }
+
+  .sw-tag-actions {
+    @apply grid items-center gap-2 shrink-0;
+    grid-template-columns: 3rem 4rem;
+  }
+
+  .sw-tag-actions-with-default {
+    grid-template-columns: 3rem 4rem 6rem;
+  }
+
+  .sw-tag-actions > button {
+    @apply w-full whitespace-nowrap text-left;
   }
 
   .sw-tag-input {
-    @apply flex-1 min-w-0 p-1 bg-zinc-800 rounded;
+    @apply flex-1 w-0 min-w-0 p-1 bg-zinc-800 rounded;
   }
 
   /* Layouts */

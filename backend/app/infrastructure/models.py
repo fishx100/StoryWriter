@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from uuid import uuid4
 
-from sqlalchemy import DateTime, String, Integer, JSON, ForeignKey, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, String, Integer, JSON, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.infrastructure.database import Base
@@ -18,6 +18,7 @@ class StatusTagModel(Base):
     color: Mapped[str] = mapped_column(String(20), nullable=False, default='#888888')
     type: Mapped[str] = mapped_column(String(50), nullable=False, default='status')
     order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    is_default: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default='0')
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc)
     )

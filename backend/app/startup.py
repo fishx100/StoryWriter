@@ -1,6 +1,6 @@
 from typing import Iterable
 
-from sqlalchemy import text
+from sqlalchemy import inspect, text
 
 from app.infrastructure.database import engine, SessionLocal
 from app.infrastructure.repositories.status_tag_repository import SqlAlchemyStatusTagRepository
@@ -28,6 +28,13 @@ def ensure_status_tags_table_has_user_id():
         _ensure_column(conn, "status_tags", "user_id", "user_id VARCHAR(36)")
 
 
+def ensure_status_tags_table_has_default():
+    with engine.begin() as conn:
+        columns = {column['name'] for column in inspect(conn).get_columns('status_tags')}
+        if 'is_default' not in columns:
+            conn.execute(text('ALTER TABLE status_tags ADD COLUMN is_default BOOLEAN NOT NULL DEFAULT FALSE'))
+
+
 def ensure_works_has_status_tag_id():
     with engine.begin() as conn:
         _ensure_column(conn, "works", "status_tag_id", "status_tag_id VARCHAR(36)")
@@ -51,6 +58,7 @@ def run_startup_tasks() -> None:
     # DDL: add new columns if needed (best-effort)
     ensure_status_tags_table_has_type()
     ensure_status_tags_table_has_user_id()
+    ensure_status_tags_table_has_default()
     ensure_works_has_status_tag_id()
 
     # Data seeding/migrations

@@ -20,6 +20,7 @@ class StatusTagService:
                 for idx, (name, color) in enumerate(defaults):
                     self._repository.create(name=name, color=color, order=idx, tag_type='status', user_id=user_id)
 
+            self._repository.ensure_default(user_id)
         return self._repository.list_all(user_id=user_id)
 
     def list_tags_by_type(self, tag_type: str, user_id: str | None = None) -> list:
@@ -37,6 +38,7 @@ class StatusTagService:
                     # avoid duplicate if a global exists with same name
                     self._repository.create(name=name, color=color, order=idx, tag_type='status', user_id=user_id)
 
+            self._repository.ensure_default(user_id)
         return self._repository.list_by_type(tag_type, user_id=user_id)
 
     def get_tag(self, tag_id: str):
@@ -45,13 +47,23 @@ class StatusTagService:
     def get_by_name(self, name: str, tag_type: str | None = None, user_id: str | None = None):
         return self._repository.get_by_name(name, tag_type=tag_type, user_id=user_id)
 
-    def create_tag(self, name: str, color: str, order: int = 0, tag_type: str = 'status', user_id: str | None = None):
+    def create_tag(self, name: str, color: str, tag_type: str = 'status', user_id: str | None = None):
         if user_id is None:
             raise ValueError("user_id is required to create a tag")
-        return self._repository.create(name=name, color=color, order=order, tag_type=tag_type, user_id=user_id)
+        existing = self._repository.list_by_owner(user_id, tag_type)
+        order = max((tag.order for tag in existing), default=-1) + 1
+        tag = self._repository.create(name=name, color=color, order=order, tag_type=tag_type, user_id=user_id)
+        if tag_type == 'status':
+            self._repository.ensure_default(user_id)
+        return tag
 
     def update_tag(self, tag_id: str, name: str | None = None, color: str | None = None, user_id: str | None = None):
         return self._repository.update(tag_id, name=name, color=color, user_id=user_id)
 
     def delete_tag(self, tag_id: str, user_id: str | None = None):
+        if user_id is not None:
+            self._repository.ensure_default(user_id)
         return self._repository.delete(tag_id, user_id=user_id)
+
+    def set_default(self, tag_id: str, user_id: str):
+        return self._repository.set_default(tag_id, user_id)

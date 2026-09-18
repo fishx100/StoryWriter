@@ -1,9 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-
-from app.core.dependencies import get_db, get_status_tag_service, get_work_service, get_current_user
+from app.core.dependencies import get_status_tag_service, get_current_user
 from app.services.status_tag_service import StatusTagService
-from app.services.work_service import WorkService
 from app.schemas.auth import AuthenticatedUser
 
 router = APIRouter(prefix='/tags', tags=['tags'])
@@ -17,6 +14,7 @@ def _to_dict(model):
         'order': model.order,
         'category': getattr(model, 'type', None),
         'user_id': getattr(model, 'user_id', None),
+        'is_default': model.is_default,
     }
 
 
@@ -53,24 +51,20 @@ def update_tag(tag_id: str, payload: dict, service: StatusTagService = Depends(g
     return _to_dict(updated)
 
 
+@router.put('/{tag_id}/default')
+def set_default_tag(tag_id: str, service: StatusTagService = Depends(get_status_tag_service), current_user: AuthenticatedUser = Depends(get_current_user)):
+    updated = service.set_default(tag_id, user_id=current_user.id)
+    if updated is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Status tag not found')
+    return _to_dict(updated)
+
+
 @router.delete('/{tag_id}', status_code=status.HTTP_204_NO_CONTENT)
-def delete_tag(tag_id: str, db: Session = Depends(get_db), tag_service: StatusTagService = Depends(get_status_tag_service), work_service: WorkService = Depends(get_work_service), current_user: AuthenticatedUser = Depends(get_current_user)):
-    # If any works use this tag, move them to Todo before deletion
-    # find Todo tag (in the 'status' type)
-    todo = None
-    for t in tag_service.list_tags_by_type('status', user_id=current_user.id):
-        if t.name.lower() == 'todo':
-            todo = t
-            break
-
-    # only affect works owned by the current user
-    works = [w for w in work_service.list_works() if getattr(w, 'user_id', None) == current_user.id]
-    for w in works:
-        if getattr(w, 'status_tag_id', None) == tag_id:
-            if todo is not None:
-                work_service.update_work_status(w.id, todo.id)
-
-    deleted = tag_service.delete_tag(tag_id, user_id=current_user.id)
+def delete_tag(tag_id: str, tag_service: StatusTagService = Depends(get_status_tag_service), current_user: AuthenticatedUser = Depends(get_current_user)):
+    try:
+        deleted = tag_service.delete_tag(tag_id, user_id=current_user.id)
+    except ValueError as error:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error)) from error
     if not deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Tag not found')
     return None
