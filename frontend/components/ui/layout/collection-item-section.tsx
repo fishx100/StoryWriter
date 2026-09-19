@@ -7,6 +7,7 @@ import type { InlineMessageProps } from "@/components/ui/common/inline-message";
 import { updateCollectionItem } from "@/features/collections/api";
 import { useAutoSave } from "@/hooks/useAutoSave";
 import type { CollectionItem } from "@/types/collection";
+import StatusBadge from "@/components/ui/common/status-badge";
 
 type CollectionItemSectionProps = {
   collectionId: string;
@@ -95,6 +96,20 @@ export function CollectionItemSection({
     else setLeaving(false);
   }
 
+  function handleStatusChange(statusTagId: string) {
+    const nextItem = { ...latestRef.current, status_tag_id: statusTagId };
+    latestRef.current = nextItem;
+    setDraft(nextItem);
+    void save(nextItem);
+  }
+
+  function handleItemChange(nextItem: CollectionItem) {
+    const transformedItem = synchronizeMetadata(nextItem);
+    latestRef.current = transformedItem;
+    setDraft(transformedItem);
+    setMessage({ type: "info", message: "Unsaved changes" });
+  }
+
   return (
     <SectionPanel title={draft.name} inlineMessage={message}>
       <div className="mb-4">
@@ -108,14 +123,14 @@ export function CollectionItemSection({
         </button>
       </div>
       <fieldset disabled={leaving} className="sw-section-layout">
+        <StatusBadge
+          currentStatusTagId={draft.status_tag_id ?? undefined}
+          disabled={leaving}
+          onChange={handleStatusChange}
+        />
         <CollectionItemForm
           item={draft}
-          onChange={(nextItem) => {
-            const transformedItem = synchronizeMetadata(nextItem);
-            latestRef.current = transformedItem;
-            setDraft(transformedItem);
-            setMessage({ type: "info", message: "Unsaved changes" });
-          }}
+          onChange={handleItemChange}
         />
       </fieldset>
       {message?.type === "error" ? (

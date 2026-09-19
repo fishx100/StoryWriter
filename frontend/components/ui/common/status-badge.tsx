@@ -6,7 +6,7 @@ import useTagStore from "@/stores/tag-store";
 
 type StatusBadgeProps = {
   currentStatusTagId?: string;
-  onChange: (tagId: string) => void;
+  onChange?: (tagId: string) => void;
   disabled?: boolean;
 };
 
@@ -36,7 +36,7 @@ export function StatusBadge({
       const { lastDeletedTagId, tags } = useTagStore.getState();
       if (lastDeletedTagId !== currentStatusTagId) return;
       const defaultTag = tags.find((tag) => tag.category === "status" && tag.is_default);
-      if (defaultTag) onChange(defaultTag.id);
+      if (defaultTag) onChange?.(defaultTag.id);
     },
   ), [currentStatusTagId, onChange]);
 
@@ -50,6 +50,14 @@ export function StatusBadge({
       zIndex: 9999,
     });
   }, [isPickerOpen]);
+
+  if (!onChange) {
+    return (
+      <span className="sw-tag-label" style={{ borderColor: currentColor }}>
+        {currentLabel}
+      </span>
+    );
+  }
 
   return (
     <div className="relative inline-block">

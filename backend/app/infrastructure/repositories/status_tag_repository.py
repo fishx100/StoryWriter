@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
-from app.infrastructure.models import StatusTagModel, WorkModel
+from app.infrastructure.models import StatusTagModel, WorkModel, CollectionModel, CollectionItemModel
 
 
 class SqlAlchemyStatusTagRepository:
@@ -96,6 +96,13 @@ class SqlAlchemyStatusTagRepository:
             self._session.query(WorkModel).filter(
                 WorkModel.user_id == user_id, WorkModel.status_tag_id == tag_id,
             ).update({WorkModel.status_tag_id: default.id}, synchronize_session='fetch')
+            owned_collections = self._session.query(CollectionModel.id).join(
+                WorkModel, WorkModel.id == CollectionModel.work_id,
+            ).filter(WorkModel.user_id == user_id)
+            self._session.query(CollectionItemModel).filter(
+                CollectionItemModel.collection_id.in_(owned_collections),
+                CollectionItemModel.status_tag_id == tag_id,
+            ).update({CollectionItemModel.status_tag_id: default.id}, synchronize_session='fetch')
         self._session.delete(model)
         self._session.commit()
         return True

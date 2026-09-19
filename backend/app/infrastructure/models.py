@@ -98,6 +98,7 @@ class CollectionItemModel(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False, default='untitled')
     description: Mapped[str] = mapped_column(String(1000), nullable=False, default='')
     order_index: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    status_tag_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
     fields: Mapped[list] = mapped_column(JSON, nullable=False)
 
 

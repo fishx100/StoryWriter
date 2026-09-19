@@ -5,12 +5,10 @@ type WorkItemProps = {
   work: Work;
   onClick: (work: Work) => void;
   onDelete: (work: Work) => void;
-  onStatusChange: (work: Work, tagId: string) => void;
-  statusSaving: boolean;
 };
 
 export function WorkItem({
-  work, onClick, onDelete, onStatusChange, statusSaving,
+  work, onClick, onDelete,
 }: WorkItemProps) {
   return (
     <article className="sw-thumbnail">
@@ -18,8 +16,6 @@ export function WorkItem({
         <div className="min-w-0 flex-1">
           <StatusBadge
             currentStatusTagId={work.status_tag_id}
-            onChange={(tagId) => onStatusChange(work, tagId)}
-            disabled={statusSaving}
           />
           <button
             type="button"

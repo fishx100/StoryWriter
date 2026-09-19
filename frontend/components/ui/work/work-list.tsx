@@ -10,12 +10,10 @@ import { WorkItem } from "./work-item";
 type WorkListProps = {
   works: Work[];
   onRequestDelete: (work: Work) => void;
-  onStatusChange: (work: Work, tagId: string) => void;
-  statusSaving: boolean;
 };
 
 export function WorkList({
-  works, onRequestDelete, onStatusChange, statusSaving,
+  works, onRequestDelete,
 }: WorkListProps) {
   const router = useRouter();
   const { openModal, closeModal } = useModal();
@@ -50,8 +48,6 @@ export function WorkList({
           work={work}
           onClick={(selectedWork) => router.push(`/works/${selectedWork.id}`)}
           onDelete={openDeleteModal}
-          onStatusChange={onStatusChange}
-          statusSaving={statusSaving}
         />
       ))}
     </div>

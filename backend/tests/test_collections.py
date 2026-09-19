@@ -17,7 +17,7 @@ from app.api.collections import router
 from app.api.works import router as works_router
 from app.core.dependencies import get_current_user, get_db
 from app.infrastructure.database import Base
-from app.infrastructure.models import CollectionItemModel, CollectionModel, WorkModel
+from app.infrastructure.models import CollectionItemModel, CollectionModel, WorkModel, StatusTagModel
 from app.schemas.auth import AuthenticatedUser
 
 
@@ -233,6 +233,82 @@ def test_work_deletion_cleans_up_collection_storage(context):
         assert db.get(WorkModel, work_id) is None
         assert db.scalars(select(CollectionModel)).all() == []
         assert db.scalars(select(CollectionItemModel)).all() == []
+
+
+def test_item_status_defaults_updates_and_validation(context):
+    client, engine, work_id, _, _ = context
+    collection = create_collection(client, work_id)
+    url = f"/api/collections/{collection['id']}/items"
+    item = client.post(url, json=create_body(draft(collection))).json()
+    with Session(engine) as db:
+        owner = db.get(WorkModel, work_id).user_id
+        tags = db.scalars(select(StatusTagModel).where(StatusTagModel.user_id == owner)).all()
+        assert len(tags) == 3
+        default = next(tag for tag in tags if tag.is_default)
+        chosen = next(tag for tag in tags if not tag.is_default)
+        assert item['status_tag_id'] == default.id
+        chosen_id = chosen.id
+        foreign = StatusTagModel(user_id=str(uuid4()), name='Other', type='status')
+        genre = StatusTagModel(user_id=owner, name='Genre', type='genre')
+        db.add_all([foreign, genre])
+        db.commit()
+        invalid_ids = [foreign.id, genre.id, str(uuid4()), None]
+    item_url = url + '/' + item['id']
+    explicit = client.post(url, json={**create_body(draft(collection)), 'status_tag_id': chosen_id})
+    assert explicit.status_code == 201
+    assert explicit.json()['status_tag_id'] == chosen_id
+    assert client.delete(url + '/' + explicit.json()['id']).status_code == 204
+    updated = client.patch(item_url, json={**update_body(item), 'status_tag_id': chosen_id})
+    assert updated.status_code == 200
+    assert updated.json()['status_tag_id'] == chosen_id
+    item['name'] = 'Edited without status'
+    assert client.patch(item_url, json=update_body(item)).json()['status_tag_id'] == chosen_id
+    for invalid in invalid_ids:
+        assert client.patch(item_url, json={**update_body(item), 'status_tag_id': invalid}).status_code == 422
+        if invalid is not None:
+            assert client.post(url, json={**create_body(draft(collection)), 'status_tag_id': invalid}).status_code == 422
+    with Session(engine) as db:
+        db.query(StatusTagModel).filter_by(user_id=owner).update({'is_default': False})
+        db.get(StatusTagModel, chosen_id).is_default = True
+        db.commit()
+    new_item = client.post(url, json=create_body(draft(collection))).json()
+    assert new_item['status_tag_id'] == chosen_id
+    assert client.get(f"/api/collections/{collection['id']}").json()['items'][1]['name'] == item['name']
+
+
+def test_collection_status_migration_backfills_once_and_preserves_assignments():
+    migration = _load_migration('0005_collection_item_status')
+    engine = create_engine('sqlite://')
+    Base.metadata.create_all(engine)
+    with Session(engine) as db:
+        for owner in ('seed-owner', 'custom-owner'):
+            work = WorkModel(id=owner, user_id=owner, title=owner)
+            collection = CollectionModel(id=owner, work_id=owner, name='Characters', template={'fields': []})
+            db.add(work)
+            db.flush()
+            db.add(collection)
+            db.flush()
+            db.add(CollectionItemModel(id=owner, collection_id=owner, fields=[]))
+        db.add(StatusTagModel(id='custom', user_id='custom-owner', name='Custom', type='status', is_default=True))
+        db.commit()
+    with engine.begin() as connection:
+        connection.execute(sa.text('ALTER TABLE collection_items DROP COLUMN status_tag_id'))
+        with Operations.context(MigrationContext.configure(connection)):
+            migration.upgrade()
+            migration.upgrade()
+        rows = dict(connection.execute(sa.text('SELECT id, status_tag_id FROM collection_items')).all())
+        assert rows['custom-owner'] == 'custom'
+        assert connection.execute(sa.text("SELECT name FROM status_tags WHERE id = :id"), {'id': rows['seed-owner']}).scalar_one() == 'Todo'
+        assert connection.execute(sa.text('SELECT COUNT(*) FROM status_tags')).scalar_one() == 4
+        connection.execute(sa.text("UPDATE status_tags SET is_default = FALSE WHERE user_id = 'seed-owner'"))
+        connection.execute(sa.text("UPDATE status_tags SET is_default = TRUE WHERE user_id = 'seed-owner' AND name = 'Done'"))
+        with Operations.context(MigrationContext.configure(connection)):
+            migration.upgrade()
+        assert dict(connection.execute(sa.text('SELECT id, status_tag_id FROM collection_items')).all()) == rows
+        with Operations.context(MigrationContext.configure(connection)):
+            migration.downgrade()
+        assert 'status_tag_id' not in {column['name'] for column in inspect(connection).get_columns('collection_items')}
+    engine.dispose()
 
 
 def _load_migration(name):

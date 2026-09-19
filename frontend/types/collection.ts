@@ -26,6 +26,7 @@ export type CollectionItem = {
   name: string;
   description: string;
   order_index: number;
+  status_tag_id?: string | null;
   fields: ItemField[];
 };
 

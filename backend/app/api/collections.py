@@ -5,7 +5,9 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_current_user, get_db
-from app.infrastructure.models import CollectionItemModel, CollectionModel, WorkModel
+from app.infrastructure.models import CollectionItemModel, CollectionModel, WorkModel, StatusTagModel
+from app.infrastructure.repositories.status_tag_repository import SqlAlchemyStatusTagRepository
+from app.services.status_tag_service import StatusTagService
 from app.schemas.auth import AuthenticatedUser
 from app.schemas.collection import (
     CollectionCreate, CollectionItemCreate, CollectionItemRead,
@@ -34,6 +36,7 @@ def _read_item(item: CollectionItemModel) -> CollectionItemRead:
         name=item.name,
         description=item.description,
         order_index=item.order_index,
+        status_tag_id=item.status_tag_id,
         fields=item.fields,
     )
 
@@ -56,6 +59,16 @@ def _require_definitions(fields: list[dict], definitions: list[dict]) -> None:
     expected = [{key: field[key] for key in ('id', 'label', 'type')} for field in definitions]
     if copied != expected:
         raise HTTPException(422, 'Field definitions and order must match the stored blueprint')
+
+
+def _resolve_status(db: Session, user: AuthenticatedUser, tag_id: UUID | None) -> str:
+    if tag_id is not None:
+        tag = db.get(StatusTagModel, str(tag_id))
+        if tag is None or tag.user_id != user.id or tag.type != 'status':
+            raise HTTPException(422, 'Choose a status belonging to the current user')
+        return tag.id
+    tags = StatusTagService(SqlAlchemyStatusTagRepository(db)).list_tags_by_type('status', user.id)
+    return next(tag.id for tag in tags if tag.is_default)
 
 
 @router.post('/works/{work_id}/collections', response_model=CollectionRead, status_code=201)
@@ -106,6 +119,7 @@ def create_item(
     collection = _require_collection(db, str(collection_id), user)
     fields = [field.model_dump() for field in payload.fields]
     _require_definitions(fields, collection.template['fields'])
+    status_tag_id = _resolve_status(db, user, payload.status_tag_id)
     db.query(CollectionItemModel).filter_by(collection_id=collection.id).update(
         {CollectionItemModel.order_index: CollectionItemModel.order_index + 1},
         synchronize_session=False,
@@ -116,6 +130,7 @@ def create_item(
         name=payload.name,
         description=payload.description,
         order_index=0,
+        status_tag_id=status_tag_id,
         fields=fields,
     )
     db.add(item)
@@ -139,6 +154,10 @@ def update_item(
     fields = [field.model_dump() for field in payload.fields]
     # Existing items are validated against their own snapshot, never today's template.
     _require_definitions(fields, item.fields)
+    if 'status_tag_id' in payload.model_fields_set:
+        if payload.status_tag_id is None:
+            raise HTTPException(422, 'Status cannot be null')
+        item.status_tag_id = _resolve_status(db, user, payload.status_tag_id)
     item.name = payload.name
     item.description = payload.description
     item.fields = fields

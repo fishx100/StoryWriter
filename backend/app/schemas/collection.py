@@ -39,6 +39,7 @@ class CollectionItemUpdate(BaseModel):
 
     name: str
     description: str = ''
+    status_tag_id: UUID | None = None
     fields: list[ItemField]
 
     @model_validator(mode='after')
@@ -58,6 +59,7 @@ class CollectionItemRead(BaseModel):
     name: str
     description: str
     order_index: int
+    status_tag_id: str | None
     fields: list[ItemField]
 
 

@@ -28,10 +28,10 @@ export function saveNewCollectionItem(
   collectionId: string,
   item: CollectionItem
 ): Promise<CollectionItem> {
-  const { id, name, description, fields } = item;
+  const { id, name, description, status_tag_id, fields } = item;
   return fetchJson<CollectionItem>(`/api/collections/${collectionId}/items`, {
     method: "POST",
-    body: JSON.stringify({ id, name, description, fields }),
+    body: JSON.stringify({ id, name, description, status_tag_id, fields }),
   });
 }
 
@@ -46,6 +46,7 @@ export function updateCollectionItem(
       body: JSON.stringify({
         name: item.name,
         description: item.description,
+        status_tag_id: item.status_tag_id,
         fields: item.fields,
       }),
     }

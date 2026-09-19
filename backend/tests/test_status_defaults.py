@@ -14,7 +14,7 @@ from sqlalchemy.pool import StaticPool
 from app.api.status_tags import router
 from app.core.dependencies import get_current_user, get_db
 from app.infrastructure.database import Base
-from app.infrastructure.models import StatusTagModel, WorkModel
+from app.infrastructure.models import StatusTagModel, WorkModel, CollectionModel, CollectionItemModel
 from app.schemas.auth import AuthenticatedUser
 
 
@@ -68,12 +68,19 @@ def test_delete_reassigns_owned_works_and_protects_default(context):
         db.add_all([owned, other])
         db.commit()
         owned_id, other_id = owned.id, other.id
+        for work_id in (owned_id, other_id):
+            db.add(CollectionModel(id=work_id, work_id=work_id, name='Characters', template={'fields': []}))
+            db.flush()
+            db.add(CollectionItemModel(id=work_id, collection_id=work_id, fields=[], status_tag_id=removed['id']))
+        db.commit()
     assert client.delete(f"/api/tags/{default['id']}").status_code == 409
     assert client.delete(f"/api/tags/{removed['id']}").status_code == 204
     with Session(engine) as db:
         assert db.get(WorkModel, owned_id).status_tag_id == default['id']
         assert db.get(WorkModel, other_id).status_tag_id == removed['id']
         assert db.get(StatusTagModel, removed['id']) is None
+        assert db.get(CollectionItemModel, owned_id).status_tag_id == default['id']
+        assert db.get(CollectionItemModel, other_id).status_tag_id == removed['id']
 
 
 def test_other_owners_and_non_status_tags_cannot_be_default(context):
