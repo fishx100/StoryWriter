@@ -93,6 +93,29 @@ def create_body(item):
     return {key: item[key] for key in ('id', 'name', 'description', 'fields')}
 
 
+def test_scene_template_editor_round_trip(context):
+    import json
+
+    client, _, work_id, _, _ = context
+    template = json.loads((Path(__file__).resolve().parents[2] / 'frontend/templates/scene.json').read_text())
+    response = client.post(f'/api/works/{work_id}/collections', json={'name': 'Scenes', 'template': template})
+    assert response.status_code == 201
+    collection = response.json()
+    item = draft(collection, 'Opening')
+    item['fields'][-1]['value'] = 'First paragraph.\n\nSecond paragraph.'
+    url = f"/api/collections/{collection['id']}/items"
+    response = client.post(url, json=create_body(item))
+    assert response.status_code == 201
+    saved = response.json()
+    assert saved['fields'] == item['fields']
+    assert client.get(f"/api/collections/{collection['id']}").json()['items'][0]['fields'] == item['fields']
+    saved['fields'][-1]['value'] = ''
+    assert client.patch(url + '/' + saved['id'], json=update_body(saved)).json()['fields'][-1]['value'] == ''
+    for invalid in (None, 12, True, []):
+        saved['fields'][-1]['value'] = invalid
+        assert client.patch(url + '/' + saved['id'], json=update_body(saved)).status_code == 422
+
+
 def update_body(item):
     return {key: item[key] for key in ('name', 'description', 'fields')}
 

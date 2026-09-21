@@ -10,7 +10,7 @@ class FieldDefinition(BaseModel):
 
     id: str = Field(min_length=1)
     label: str
-    type: Literal['text', 'textarea', 'number', 'checkbox']
+    type: Literal['text', 'textarea', 'editor', 'number', 'checkbox']
 
 
 class CollectionTemplate(BaseModel):
@@ -22,7 +22,7 @@ class ItemField(FieldDefinition):
 
     @model_validator(mode='after')
     def validate_value(self):
-        if self.type in ('text', 'textarea'):
+        if self.type in ('text', 'textarea', 'editor'):
             if not isinstance(self.value, str):
                 raise ValueError('Text fields require a string value')
         elif self.type == 'checkbox':

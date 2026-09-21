@@ -1,0 +1,7 @@
+{
+  "fields": [
+    { "id": "name", "label": "Title", "type": "text" },
+    { "id": "description", "label": "Summary", "type": "textarea" },
+    { "id": "content", "label": "Content", "type": "editor" }
+  ]
+}

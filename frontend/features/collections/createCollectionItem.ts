@@ -8,6 +8,7 @@ function getDefaultValue(type: FieldType): unknown {
   switch (type) {
     case "text":
     case "textarea":
+    case "editor":
       return "";
 
     case "number":
@@ -28,7 +29,7 @@ export function createCollectionItem(
     order_index: 0,
     fields: template.fields.map((field) => ({
       ...field,
-      value: field.id === "name" && (field.type === "text" || field.type === "textarea")
+      value: field.id === "name" && (field.type === "text" || field.type === "textarea" || field.type === "editor")
         ? "untitled"
         : getDefaultValue(field.type),
     })),

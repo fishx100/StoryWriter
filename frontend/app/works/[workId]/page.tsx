@@ -8,9 +8,9 @@ import { fetchJson } from "@/lib/api";
 import type { Work } from "@/types/work";
 import { SideNavigationPanel } from "@/components/navigation/side-navigation-panel";
 import { WorkOverviewSection } from "@/components/ui/work/work-overview-section";
-import { SceneListSection } from "@/components/ui/work/scene-list-section";
 import { CollectionListSection } from "@/components/ui/layout/collection-list-section";
 import characterTemplate from "@/templates/character.json";
+import sceneTemplate from "@/templates/scene.json";
 import type { CollectionTemplate } from "@/types/collection";
 
 type WorkPageProps = {
@@ -76,10 +76,6 @@ export default function WorkPage({ params }: WorkPageProps) {
               <WorkOverviewSection work={work} setWork={setWork} />
             ) : null}
 
-            {selectedItem === "scenes" ? (
-              <SceneListSection work={work} />
-            ) : null}
-
             {selectedItem === "characters" ? (
               <CollectionListSection
                 key={work.id}
@@ -87,6 +83,16 @@ export default function WorkPage({ params }: WorkPageProps) {
                 collectionName="Characters"
                 itemLabel="Character"
                 template={characterTemplate as CollectionTemplate}
+              />
+            ) : null}
+
+            {selectedItem === "scenes" ? (
+              <CollectionListSection
+                key={`scenes-${work.id}`}
+                workId={work.id}
+                collectionName="Scenes"
+                itemLabel="Scene"
+                template={sceneTemplate as CollectionTemplate}
               />
             ) : null}
           </div>

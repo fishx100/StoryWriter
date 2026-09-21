@@ -1,6 +1,7 @@
 export type FieldType =
   | "text"
   | "textarea"
+  | "editor"
   | "number"
   | "checkbox";
 

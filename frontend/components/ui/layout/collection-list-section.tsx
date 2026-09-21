@@ -81,16 +81,10 @@ export function CollectionListSection({
       item.description = input.description;
       // Match the name and description fields to the input values, if they exist.
       item.fields = item.fields.map((field) => {
-        if (
-          field.id === "name" &&
-          (field.type === "text" || field.type === "textarea")
-        ) {
+        if (field.id === "name") {
           return { ...field, value: name };
         }
-        if (
-          field.id === "description" &&
-          (field.type === "text" || field.type === "textarea")
-        ) {
+        if (field.id === "description") {
           return { ...field, value: input.description };
         }
         return field;
