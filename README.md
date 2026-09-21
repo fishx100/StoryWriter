@@ -4,6 +4,8 @@ StoryWriter is a browser-based story planning and drafting app built as a monore
 
 It is designed for long-form fiction workflows: managing works, scenes, characters, and related story structure in one place.
 
+![StoryWriter screenshot collage](Images/screenshot_collage.png)
+
 ## Demo
 
 ![StoryWriter demo](Images/demo_20260826.gif)
