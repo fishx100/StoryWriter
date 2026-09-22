@@ -7,6 +7,8 @@ import { DashboardHeader } from "../dashboard/dashboard-header";
 import { WorklistSection } from "../dashboard/worklist-section";
 import { Work } from "@/types/work";
 import { InlineMessage } from "../common/inline-message";
+import { CreateWorkModal } from "@/components/modals/create-work-modal";
+import { useModal } from "@/components/modals/modal-provider";
 
 type WorkDashboardProps = {};
 
@@ -14,6 +16,7 @@ export function WorkDashboard({}: WorkDashboardProps) {
   const [works, setWorks] = useState<Work[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { openModal, closeModal } = useModal();
 
   useEffect(() => {
     let active = true;
@@ -44,15 +47,31 @@ export function WorkDashboard({}: WorkDashboardProps) {
 
   const totalWorks = works.length;
 
+  function openCreateWorkModal() {
+    openModal(
+      <CreateWorkModal
+        onClose={closeModal}
+        onWorkCreated={(work) => setWorks((current) => [...current, work])}
+      />,
+    );
+  }
+
   return (
     <main className="sw-page-shell">
-      <div className="sw-inter-section-layout">
-        <DashboardHeader totalWorks={totalWorks} />
-
-        <WorklistSection works={works} setWorks={setWorks} />
-
-        {loading && <InlineMessage type="info" message="Loading works..." />}
-        {error && <InlineMessage type="error" message={error} />}
+      <div className="sw-dashboard">
+        <DashboardHeader
+          totalWorks={loading || error ? null : totalWorks}
+          onCreateWork={openCreateWorkModal}
+        />
+        <div className="sw-dashboard-content">
+          {loading ? (
+            <div role="status"><InlineMessage type="info" message="Loading works..." /></div>
+          ) : error ? (
+            <div role="alert"><InlineMessage type="error" message={error} /></div>
+          ) : (
+            <WorklistSection works={works} setWorks={setWorks} />
+          )}
+        </div>
       </div>
     </main>
   );

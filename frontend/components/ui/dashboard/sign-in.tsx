@@ -2,17 +2,21 @@
 
 import { useAuth } from "@/components/auth/AuthProvider";
 import LogoutButton from "@/components/navigation/logout-button";
-import { FieldContainer } from "@/components/layout/field-container";
 
 export function SignIn() {
   const { user } = useAuth();
 
   return (
-    <FieldContainer fieldName="Signed in as">
-      <div className="mt-2 flex items-center gap-3">
-        <p className="sw-text-plain-small">{user?.email ?? "Unknown"}</p>
+    <div className="sw-account">
+      <span aria-hidden="true" className="sw-account-avatar">
+        {user?.email?.charAt(0).toUpperCase() || "?"}
+      </span>
+      <p className="sw-account-email" title={user?.email}>
+        {user?.email ?? "Unknown"}
+      </p>
+      <div className="sw-account-actions">
         <LogoutButton />
       </div>
-    </FieldContainer>
+    </div>
   );
 }

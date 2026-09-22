@@ -1,5 +1,6 @@
 import type { Work } from "@/types/work";
 import { StatusBadge } from "../common/status-badge";
+import { Icon } from "../common/icon";
 
 type WorkItemProps = {
   work: Work;
@@ -7,37 +8,32 @@ type WorkItemProps = {
   onDelete: (work: Work) => void;
 };
 
-export function WorkItem({
-  work, onClick, onDelete,
-}: WorkItemProps) {
+export function WorkItem({ work, onClick, onDelete }: WorkItemProps) {
   return (
-    <article className="sw-thumbnail">
-      <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <StatusBadge
-            currentStatusTagId={work.status_tag_id}
-          />
-          <button
-            type="button"
-            onClick={() => onClick(work)}
-            className="sw-invisible-button"
-          >
-            <h3 className="sw-text-bold-medium">{work.title}</h3>
-            <p className="sw-text-plain-small">
+    <article className="sw-work-card">
+      <div className="sw-work-card-layout">
+        <div className="sw-cover-placeholder">
+          <Icon name="feather" size={30} />
+          <span className="sw-cover-placeholder-label">Cover<br />placeholder</span>
+        </div>
+        <div className="sw-card-content">
+          <StatusBadge currentStatusTagId={work.status_tag_id} />
+          <button type="button" onClick={() => onClick(work)} className="sw-work-card-link">
+            <h3 className="sw-work-card-title" title={work.title}>{work.title}</h3>
+            <p className="sw-work-card-description">
               {work.premise || "No premise yet."}
             </p>
           </button>
-        </div>
-
-        <div className="flex flex-col items-end gap-3">
-          <span className="sw-tag-label">{work.genre || "Unspecified"}</span>
-          <button
-            type="button"
-            onClick={() => onDelete(work)}
-            className="sw-delete-button"
-          >
-            Delete
-          </button>
+          <div className="sw-work-card-footer">
+            <span className="sw-work-genre" title={work.genre || "Unspecified"}>
+              {work.genre || "Unspecified"}
+            </span>
+            <div className="sw-work-card-actions">
+              <button type="button" onClick={() => onDelete(work)} className="sw-work-delete-button" aria-label={`Delete ${work.title}`} title="Delete work">
+                <Icon name="delete" size={16} />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </article>

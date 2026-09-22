@@ -20,7 +20,7 @@ export function WorkList({
 
   if (works.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-slate-200/10 bg-slate-950/40 p-8 text-slate-300">
+      <div className="sw-work-list-empty">
         No works yet. Create your first project to get started.
       </div>
     );
@@ -41,7 +41,7 @@ export function WorkList({
   };
 
   return (
-    <div className="grid gap-4 xl:grid-cols-2">
+    <div className="sw-work-grid">
       {works.map((work) => (
         <WorkItem
           key={work.id}
