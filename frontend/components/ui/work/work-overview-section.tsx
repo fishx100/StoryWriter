@@ -1,13 +1,14 @@
 "use client";
 
 import { TextFieldContainer } from "@/components/layout/text-field-container";
-import { SectionPanel } from "@/components/layout/section-panel";
+import Link from "next/link";
+import { Icon } from "../common/icon";
 import { Work } from "@/types/work";
 import StatusBadge from "../common/status-badge";
 import { type Dispatch, type SetStateAction, useState, useEffect, useCallback, useRef } from "react";
 import { fetchJson } from "@/lib/api";
 import { useAutoSave } from "@/hooks/useAutoSave";
-import { InlineMessageProps } from "../common/inline-message";
+import { InlineMessage, type InlineMessageProps } from "../common/inline-message";
 
 type WorkOverviewSectionProps = {
   work: Work;
@@ -89,32 +90,60 @@ export function WorkOverviewSection({
   }, [title, premise, genre]);
 
   return (
-    <SectionPanel title="Overview" inlineMessage={inlineMessage}>
-      <div className="sw-section-layout">
-        <StatusBadge
-          currentStatusTagId={work.status_tag_id}
-          onChange={handleStatusChange}
-          disabled={statusSaving}
-        />
-        <TextFieldContainer
-          editable
-          fieldName="Title"
-          fieldValue={title}
-          onChange={setTitle}
-        />
-        <TextFieldContainer
-          editable
-          fieldName="Premise"
-          fieldValue={premise}
-          onChange={setPremise}
-        />
-        <TextFieldContainer
-          editable
-          fieldName="Genre"
-          fieldValue={genre}
-          onChange={setGenre}
-        />
+    <section className="sw-work-overview">
+      <div className="sw-work-hero">
+        <div className="sw-work-cover-placeholder">
+          <Icon name="feather" size={44} />
+          <span className="sw-cover-placeholder-label">Cover<br />placeholder</span>
+        </div>
+        <div className="sw-work-hero-content">
+          <h1 className="sw-work-title">{title || "Untitled work"}</h1>
+          <p className="sw-work-premise">{premise || "Add a premise below to introduce your story."}</p>
+          <div className="sw-work-metadata">
+            <StatusBadge
+              currentStatusTagId={work.status_tag_id}
+              onChange={handleStatusChange}
+              disabled={statusSaving}
+            />
+            <span className="sw-work-genre" title={genre || "Unspecified"}>{genre || "Unspecified"}</span>
+          </div>
+        </div>
       </div>
-    </SectionPanel>
+
+      <div>
+        <div className="sw-work-details-heading">
+          <h2 className="sw-text-bold-medium">Work Details</h2>
+          {inlineMessage && <InlineMessage {...inlineMessage} />}
+        </div>
+        <p className="sw-work-edit-hint">Click a field to edit. Changes save automatically.</p>
+        <div className="sw-work-details">
+          <TextFieldContainer
+            editable
+            layout="row"
+            icon="work"
+            fieldName="Title"
+            fieldValue={title}
+            onChange={setTitle}
+          />
+          <TextFieldContainer
+            editable
+            multiline
+            layout="row"
+            icon="summary"
+            fieldName="Premise"
+            fieldValue={premise}
+            onChange={setPremise}
+          />
+          <TextFieldContainer
+            editable
+            layout="row"
+            icon="genre"
+            fieldName="Genre"
+            fieldValue={genre}
+            onChange={setGenre}
+          />
+        </div>
+      </div>
+    </section>
   );
 }

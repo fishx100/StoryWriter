@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import type { Scene } from "@/types/scene";
 import { DraggableList } from "@/components/lists/draggable-list";
 import { DraggableListItem } from "@/components/lists/draggable-list-item";
@@ -24,15 +23,29 @@ export function SceneList({
     <DraggableList
       items={scenes}
       getId={(s) => s.id}
-      onRequestDelete={(id: string) => {
-        const s = scenes.find((sc) => sc.id === id);
-        if (s) onRequestDelete(s);
-      }}
       onReorder={onReorder}
-      onSelectItem={onSelectScene ?? undefined}
       customItem={(scene) => {
         return (
-          <DraggableListItem title={scene.title} description={scene.summary} />
+          <div className="sw-draggable-list-item">
+            <div className="sw-card-content">
+              {onSelectScene ? (
+                <button
+                  type="button"
+                  onClick={() => onSelectScene(scene)}
+                  className="sw-draggable-list-item-content"
+                >
+                  <DraggableListItem title={scene.title} description={scene.summary} />
+                </button>
+              ) : (
+                <div className="sw-draggable-list-item-content">
+                  <DraggableListItem title={scene.title} description={scene.summary} />
+                </div>
+              )}
+            </div>
+            <button type="button" className="sw-delete-button" onClick={() => onRequestDelete(scene)}>
+              Delete
+            </button>
+          </div>
         );
       }}
     />

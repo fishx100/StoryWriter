@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { Icon, type IconName } from "@/components/ui/common/icon";
 
 /**
  * A container component for a field with a title and children. It can be selectable and show hover effects.
@@ -12,6 +13,8 @@ type FieldContainerProps = {
   showHover?: boolean;
   selectable?: boolean;
   onSelect?: () => void;
+  layout?: "panel" | "row";
+  icon?: IconName;
 };
 
 export function FieldContainer({
@@ -20,6 +23,8 @@ export function FieldContainer({
   selectable = false,
   showHover = false,
   onSelect,
+  layout = "panel",
+  icon,
 }: FieldContainerProps) {
   const [isSelected, setIsSelected] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -51,7 +56,7 @@ export function FieldContainer({
   }
 
   const containerClass = [
-    "sw-field-container",
+    layout === "row" ? "sw-field-row" : "sw-field-container",
     showHover && !isSelected ? "sw-border-hover" : "",
     isSelected ? "sw-border-focus" : "",
   ]
@@ -64,7 +69,10 @@ export function FieldContainer({
       className={containerClass}
       onClick={handleContainerClick}
     >
-      <p className="sw-field-title">{fieldName}</p>
+      <p className={layout === "row" ? "sw-field-row-label" : "sw-field-title"}>
+        {icon && <Icon name={icon} size={16} />}
+        {fieldName}
+      </p>
       {children}
     </div>
   );

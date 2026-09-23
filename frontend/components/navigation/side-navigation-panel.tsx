@@ -1,49 +1,53 @@
 "use client";
 
-import Link from "next/dist/client/link";
-import { useState } from "react";
+import Link from "next/link";
+import { Icon, type IconName } from "@/components/ui/common/icon";
 
 type SideNavigationPanelProps = {
   backLink: string;
+  selectedItem: string;
   options: {
     id: string;
     label: string;
+    icon: IconName;
   }[];
   onSelectOption: (optionId: string) => void;
 };
 
 export function SideNavigationPanel({
   backLink,
+  selectedItem,
   options,
   onSelectOption,
 }: SideNavigationPanelProps) {
-  const [selectedItem, setSelectedItem] = useState(options[0]?.id); // Default to the first option if available
-
   return (
-    <aside className="sw-section-panel w-full lg:w-72 lg:flex-none">
-      <Link href={backLink} className="sw-normal-button mb-4 inline-flex">
-        Back
-      </Link>
-
-      <nav className="space-y-2">
+    <aside className="sw-work-sidebar">
+      <Link href={backLink} className="sw-sidebar-brand">STORYWRITER</Link>
+      <nav className="sw-sidebar-navigation">
+        <Link href={backLink} className="sw-sidebar-link">
+          <Icon name="dashboard" size={18} />
+          Dashboard
+        </Link>
         {options.map((item) => (
           <button
             key={item.id}
             type="button"
-            onClick={() => {
-              setSelectedItem(item.id);
-              onSelectOption(item.id);
-            }}
+            onClick={() => onSelectOption(item.id)}
             className={`${
               selectedItem === item.id
-                ? "sw-side-panel-item-selected"
-                : "sw-side-panel-item-normal"
+                ? "sw-sidebar-link-selected"
+                : "sw-sidebar-link"
             }`}
           >
+            <Icon name={item.icon} size={18} />
             {item.label}
           </button>
         ))}
       </nav>
+      <div className="sw-sidebar-footer">
+        <Icon name="feather" size={30} />
+        <p>Stories<br /><span className="sw-text-caption">a brighter tomorrow.</span></p>
+      </div>
     </aside>
   );
 }

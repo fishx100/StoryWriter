@@ -9,7 +9,8 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 type DraggableListProps<T> = {
   items: T[];
   getId: (item: T) => string;
-  customItem?: (item: T) => ReactNode;
+  // Replaces the full row contents, including selection and delete controls.
+  customItem?: (item: T, index: number) => ReactNode;
   onRequestDelete?: (id: string) => void;
   onReorder?: (order: string[]) => Promise<void> | void;
   onSelectItem?: (item: T) => void;
@@ -79,37 +80,42 @@ export function DraggableList<T>({
             tabIndex={0}
             draggable
             onDragStart={() => setDraggedId(id)}
+            onDragEnd={() => setDraggedId(null)}
             onDragOver={(e) => e.preventDefault()}
             onDrop={() => moveDraggedItem(id)}
-            className="sw-draggable-list-item"
+            className={customItem == null ? "sw-draggable-list-item" : undefined}
             aria-label={`List item ${idx + 1}. Use Arrow Up or Arrow Down to reorder.`}
           >
-            <div className="min-w-0 flex-1">
-              {onSelectItem ? (
-                <button
-                  type="button"
-                  onClick={() => onSelectItem(item)}
-                  className="sw-draggable-list-item-content"
-                >
-                  {customItem ? customItem(item) : <div>{String(id)}</div>}
-                </button>
-              ) : (
-                /** @todo consider if we do have situation where there is no selection action */
-                <div className="sw-draggable-list-item-content">
-                  {customItem ? customItem(item) : <div>{String(id)}</div>}
+            {customItem != null ? customItem(item, idx) : (
+              <>
+                <div className="min-w-0 flex-1">
+                  {onSelectItem ? (
+                    <button
+                      type="button"
+                      onClick={() => onSelectItem(item)}
+                      className="sw-draggable-list-item-content"
+                    >
+                      <div>{String(id)}</div>
+                    </button>
+                  ) : (
+                    /** @todo consider if we do have situation where there is no selection action */
+                    <div className="sw-draggable-list-item-content">
+                      <div>{String(id)}</div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            <div className="items-end">
-              <button
-                type="button"
-                onClick={() => onRequestDelete && onRequestDelete(getId(item))}
-                className="sw-delete-button"
-              >
-                Delete
-              </button>
-            </div>
+                <div className="items-end">
+                  <button
+                    type="button"
+                    onClick={() => onRequestDelete && onRequestDelete(getId(item))}
+                    className="sw-delete-button"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         );
       })}

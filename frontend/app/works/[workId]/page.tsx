@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { use, useEffect, useState } from "react";
 import { LoadingPanel } from "@/components/ui/loading-panel";
 
@@ -12,6 +11,7 @@ import { CollectionListSection } from "@/components/ui/layout/collection-list-se
 import characterTemplate from "@/templates/character.json";
 import sceneTemplate from "@/templates/scene.json";
 import type { CollectionTemplate } from "@/types/collection";
+import { SignIn } from "@/components/ui/dashboard/sign-in";
 
 type WorkPageProps = {
   params: Promise<{ workId: string }>;
@@ -25,11 +25,14 @@ export default function WorkPage({ params }: WorkPageProps) {
   const [selectedItem, setSelectedItem] = useState<
     "overview" | "scenes" | "characters"
   >("overview");
+  const [selectedCollectionItemId, setSelectedCollectionItemId] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
 
     async function loadWork() {
+      setLoading(true);
+      setError(null);
       try {
         const workData = await fetchJson<Work>(`/api/works/${workId}`);
         if (active) setWork(workData);
@@ -47,8 +50,7 @@ export default function WorkPage({ params }: WorkPageProps) {
     };
   }, [workId]);
 
-  if (loading) {
-    /* @todo: custom error message */
+  if (loading || error || !work) {
     return (
       <main className="sw-page-shell">
         <LoadingPanel hasError={error !== null} backline="/dashboard" />
@@ -57,44 +59,55 @@ export default function WorkPage({ params }: WorkPageProps) {
   } else if (work) {
     return (
       <main className="sw-page-shell">
-        <div className="sw-page-with-side-panel-layout">
+        <div className="sw-work-workspace">
           <SideNavigationPanel
             backLink="/dashboard"
+            selectedItem={selectedItem}
             /* @todo: avoid hardcoding options */
             options={[
-              { id: "overview" as const, label: "Overview" },
-              { id: "scenes" as const, label: "Scenes" },
-              { id: "characters" as const, label: "Characters" },
+              { id: "overview" as const, label: "Overview", icon: "work" },
+              { id: "scenes" as const, label: "Scenes", icon: "scenes" },
+              { id: "characters" as const, label: "Characters", icon: "characters" },
             ]}
             onSelectOption={(optionId) => {
+              setSelectedCollectionItemId(null);
               setSelectedItem(optionId as "overview" | "scenes" | "characters");
             }}
           />
 
-          <div className="sw-vertical-panel-gap">
-            {selectedItem === "overview" ? (
-              <WorkOverviewSection work={work} setWork={setWork} />
-            ) : null}
+          <div className="sw-work-main">
+            <header className="sw-work-header">
+              <SignIn />
+            </header>
+            <div className="sw-work-content">
+              {selectedItem === "overview" ? (
+                <WorkOverviewSection key={work.id} work={work} setWork={setWork} />
+              ) : null}
 
-            {selectedItem === "characters" ? (
-              <CollectionListSection
-                key={work.id}
-                workId={work.id}
-                collectionName="Characters"
-                itemLabel="Character"
-                template={characterTemplate as CollectionTemplate}
-              />
-            ) : null}
+              {selectedItem === "characters" ? (
+                <CollectionListSection
+                  key={work.id}
+                  workId={work.id}
+                  collectionName="Characters"
+                  selectedItemId={selectedCollectionItemId}
+                  onSelectItem={setSelectedCollectionItemId}
+                  itemLabel="Character"
+                  template={characterTemplate as CollectionTemplate}
+                />
+              ) : null}
 
-            {selectedItem === "scenes" ? (
-              <CollectionListSection
-                key={`scenes-${work.id}`}
-                workId={work.id}
-                collectionName="Scenes"
-                itemLabel="Scene"
-                template={sceneTemplate as CollectionTemplate}
-              />
-            ) : null}
+              {selectedItem === "scenes" ? (
+                <CollectionListSection
+                  key={`scenes-${work.id}`}
+                  workId={work.id}
+                  collectionName="Scenes"
+                  selectedItemId={selectedCollectionItemId}
+                  onSelectItem={setSelectedCollectionItemId}
+                  itemLabel="Scene"
+                  template={sceneTemplate as CollectionTemplate}
+                />
+              ) : null}
+            </div>
           </div>
         </div>
       </main>

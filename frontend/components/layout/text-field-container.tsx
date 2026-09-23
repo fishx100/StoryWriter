@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import { FieldContainer } from "./field-container";
+import type { IconName } from "@/components/ui/common/icon";
 
 type TextFieldContainerProps = {
   fieldName: string;
@@ -9,6 +10,8 @@ type TextFieldContainerProps = {
   editable?: boolean;
   multiline?: boolean;
   onChange?: (newValue: string) => void;
+  layout?: "panel" | "row";
+  icon?: IconName;
 };
 
 export function TextFieldContainer({
@@ -17,6 +20,8 @@ export function TextFieldContainer({
   editable = false,
   multiline,
   onChange,
+  layout,
+  icon,
 }: TextFieldContainerProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(fieldValue);
@@ -50,6 +55,8 @@ export function TextFieldContainer({
   return (
     <FieldContainer
       fieldName={fieldName}
+      layout={layout}
+      icon={icon}
       selectable={editable}
       showHover={editable}
       onSelect={handleContainerClick}

@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { SectionPanel } from "@/components/layout/section-panel";
 import { CollectionItemList } from "@/components/lists/collection-item-list";
+import { Icon } from "@/components/ui/common/icon";
 import { ConfirmDeleteModal } from "@/components/modals/confirm-delete-modal";
 import {
   CreateCollectionItemModal,
@@ -26,6 +26,8 @@ type CollectionListSectionProps = {
   collectionName: string;
   itemLabel: string;
   template: CollectionTemplate;
+  selectedItemId: string | null;
+  onSelectItem: (itemId: string | null) => void;
 };
 
 export function CollectionListSection({
@@ -33,9 +35,10 @@ export function CollectionListSection({
   collectionName,
   itemLabel,
   template,
+  selectedItemId,
+  onSelectItem,
 }: CollectionListSectionProps) {
   const [collection, setCollection] = useState<Collection | null>(null);
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
@@ -176,24 +179,26 @@ export function CollectionListSection({
         collectionId={collection.id}
         item={selectedItem}
         onSaved={handleSaved}
-        onBack={() => setSelectedItemId(null)}
+        onBack={() => onSelectItem(null)}
         backLabel={`Back to ${itemLabel.toLowerCase()} list`}
       />
     );
   }
 
   return (
-    <SectionPanel title={collectionName}>
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="sw-text-bold-medium">
-          Browse and manage {collectionName.toLowerCase()}
-        </h2>
+    <section>
+      <div className="sw-collection-list-header">
+        <div>
+          <h1 className="sw-work-title">{collectionName}</h1>
+          <p className="sw-text-plain-small">Browse and manage {collectionName.toLowerCase()}.</p>
+        </div>
         <button
           type="button"
           onClick={openCreateModal}
           disabled={loading || !collection}
-          className="sw-important-button"
+          className="sw-collection-create-button"
         >
+          <Icon name="plus" size={18} />
           Create {itemLabel}
         </button>
       </div>
@@ -206,20 +211,25 @@ export function CollectionListSection({
               Retry
             </button>
           ) : collection.items.length === 0 ? (
-            <InlineMessage
-              message={`No ${collectionName.toLowerCase()} yet. Create a ${itemLabel.toLowerCase()} to get started.`}
-              type="info"
-            />
+            <div className="sw-work-list-empty">
+              <InlineMessage
+                message={`No ${collectionName.toLowerCase()} yet. Create a ${itemLabel.toLowerCase()} to get started.`}
+                type="info"
+              />
+            </div>
           ) : (
-            <CollectionItemList
-              items={collection.items}
-              onRequestDelete={openDeleteModal}
-              onReorder={handleReorder}
-              onSelectItem={(item) => setSelectedItemId(item.id)}
-            />
+            <>
+              <CollectionItemList
+                items={collection.items}
+                onRequestDelete={openDeleteModal}
+                onReorder={handleReorder}
+                onSelectItem={(item) => onSelectItem(item.id)}
+              />
+              <p className="sw-collection-reorder-hint">Drag a row to reorder {collectionName.toLowerCase()}.</p>
+            </>
           )}
         </>
       )}
-    </SectionPanel>
+    </section>
   );
 }
